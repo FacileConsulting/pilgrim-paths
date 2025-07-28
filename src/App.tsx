@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import CustomerHome from "./pages/CustomerHome";
 import Dashboard from "./pages/admin/Dashboard";
 import Providers from "./pages/admin/Providers";
+import AddProvider from "./pages/admin/AddProvider";
 import Packages from "./pages/admin/Packages";
 import Locations from "./pages/admin/Locations";
 import Inquiries from "./pages/admin/Inquiries";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/search" element={<CustomerHome />} />
           <Route path="/admin" element={<Dashboard />} />
           <Route path="/admin/providers" element={<Providers />} />
+          <Route path="/admin/providers/add" element={<AddProvider />} />
           <Route path="/admin/packages" element={<Packages />} />
           <Route path="/admin/locations" element={<Locations />} />
           <Route path="/admin/inquiries" element={<Inquiries />} />

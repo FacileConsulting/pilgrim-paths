@@ -17,6 +17,7 @@ import {
   Trash2,
   Eye
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,10 +76,12 @@ const Providers = () => {
             <h1 className="text-3xl font-bold text-foreground">Providers</h1>
             <p className="text-muted-foreground">Manage travel agencies and service providers</p>
           </div>
-          <Button className="bg-primary hover:bg-primary-hover">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Provider
-          </Button>
+          <Link to="/admin/providers/add">
+            <Button className="bg-primary hover:bg-primary-hover">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Provider
+            </Button>
+          </Link>
         </div>
 
         {/* Filters and Search */}
