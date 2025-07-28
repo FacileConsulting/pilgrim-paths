@@ -18,6 +18,7 @@ import {
   Eye,
   Copy
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -90,10 +91,12 @@ const Packages = () => {
             <h1 className="text-3xl font-bold text-foreground">Packages</h1>
             <p className="text-muted-foreground">Manage Hajj and Umrah travel packages</p>
           </div>
-          <Button className="bg-primary hover:bg-primary-hover">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Package
-          </Button>
+          <Link to="/admin/packages/create">
+            <Button className="bg-primary hover:bg-primary-hover">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Package
+            </Button>
+          </Link>
         </div>
 
         {/* Filters and Search */}

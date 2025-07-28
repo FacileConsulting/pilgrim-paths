@@ -9,6 +9,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Providers from "./pages/admin/Providers";
 import AddProvider from "./pages/admin/AddProvider";
 import Packages from "./pages/admin/Packages";
+import CreatePackage from "./pages/admin/CreatePackage";
 import Locations from "./pages/admin/Locations";
 import Inquiries from "./pages/admin/Inquiries";
 import Analytics from "./pages/admin/Analytics";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/admin/providers" element={<Providers />} />
           <Route path="/admin/providers/add" element={<AddProvider />} />
           <Route path="/admin/packages" element={<Packages />} />
+          <Route path="/admin/packages/create" element={<CreatePackage />} />
           <Route path="/admin/locations" element={<Locations />} />
           <Route path="/admin/inquiries" element={<Inquiries />} />
           <Route path="/admin/analytics" element={<Analytics />} />
