@@ -1,14 +1,162 @@
+import { useState } from "react";
+
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Building2, Save } from "lucide-react";
 import { Link } from "react-router-dom";
 
+// File imports
+import { ADD_NEW_PROVIDER } from "@/lib/constant";
+
 const AddProvider = () => {
+
+  // Constants
+  const { 
+    placeholder,
+    providerStatusOptions,
+    providerEmployeesOptions,
+    providerServicesOptions,
+    providerVerificationStatusOptions
+   } = ADD_NEW_PROVIDER;
+  const { 
+    name,
+    description,
+    email,
+    phone,
+    website,
+    address,
+    license,
+    established,
+    notes
+  } = placeholder;
+
+  type ProviderStatus = typeof providerStatusOptions[number]["value"]; // "pending" | "active" | "suspended"
+  type ProviderEmployees = typeof providerEmployeesOptions[number]["value"];
+  type ProviderServices = typeof providerServicesOptions[number]["value"];
+  type ProviderVerificationStatus = typeof providerVerificationStatusOptions[number]["value"];
+  
+  const [providerStatus, setProviderStatus] = useState<ProviderStatus>("pending");
+  const [providerEmployees, setProviderEmployees] = useState<ProviderEmployees>("1-10");
+  const [providerServices, setProviderServices] = useState<ProviderServices>("hajj");
+  const [providerVerificationStatus, setProviderVerificationStatus] = useState<ProviderVerificationStatus>("pending");
+  const [inputData, setInputData] = useState<any>({
+    providerName: "",
+    providerDescription: "",
+    providerEmail: "",
+    providerPhone: "",
+    providerWebsite: "",
+    providerAddress: "",
+    providerLicense: "",
+    providerEstablished: "",
+    providerAdminNotes: "",
+  });
+
+  const handleInput = (
+    e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.currentTarget;
+    setInputData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleCancel = () => {
+    setInputData({
+      providerName: "",
+      providerDescription: "",
+      providerEmail: "",
+      providerPhone: "",
+      providerWebsite: "",
+      providerAddress: "",
+      providerLicense: "",
+      providerEstablished: "",
+      providerAdminNotes: "",
+    });
+    setProviderStatus("pending");
+    setProviderEmployees("1-10");
+    setProviderServices("hajj");
+    setProviderVerificationStatus("pending");
+  };
+
+  const validation = () => {
+    let isValid = true;
+    const {
+      providerName,
+      providerEmail,
+      providerPhone,
+      providerLicense,
+      providerEstablished
+    } = inputData;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10}$/;
+    const licenseRegex = /^\d+$/;
+    const establishedRegex = /^\d{4}$/;
+
+    if (!providerEstablished || !establishedRegex.test(providerEstablished)) {
+      toast({ title: 'Please enter a valid year' });
+      isValid = false;
+    }
+
+    if (!providerLicense || !licenseRegex.test(providerLicense)) {
+      toast({ title: 'Please enter a valid license' });
+      isValid = false;
+    }
+
+    if (!providerPhone || !phoneRegex.test(providerPhone)) {
+      toast({ title: 'Please enter a valid phone number' });
+      isValid = false;
+    }
+
+    if (!providerEmail || !emailRegex.test(providerEmail)) {
+      toast({ title: 'Please enter a valid email' });
+      isValid = false;
+    }
+
+    if (!providerName) {
+      toast({ title: 'Please enter provider name' });
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  const handleSaveProvider = async (isDraft: boolean = false) => {
+    if (!validation()) return;
+    const payload: any = {
+      isDraft,
+      providerStatus,
+      providerEmployees,
+      providerServices,
+      providerVerificationStatus,
+      ...inputData
+    };
+    try {
+      const response = await fetch("http://localhost:8000/api/providers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({ title: data.message });
+        handleCancel();
+      } else {
+        toast({ title: data.message || "Something went wrong!" });
+      }
+    } catch (error) {
+      console.error("Error provider save data:", error);
+      toast({ title: "Something went wrong!" });
+    }
+  };
+
+  console.log(inputData , providerStatus);
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -39,18 +187,26 @@ const AddProvider = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Provider Name *</Label>
-                    <Input id="name" placeholder="Al-Haramain Travel Agency" />
+                    <Input 
+                      id="providerName" 
+                      placeholder={name} 
+                      value={inputData.providerName}
+                      onInput={handleInput} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
-                    <Select>
+                    <Select value={providerStatus} onValueChange={(val) => setProviderStatus(val as ProviderStatus)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="suspended">Suspended</SelectItem>
+                        {
+                          providerStatusOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))
+                        }
                       </SelectContent>
                     </Select>
                   </div>
@@ -59,8 +215,10 @@ const AddProvider = () => {
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
                   <Textarea 
-                    id="description" 
-                    placeholder="Brief description of the travel agency..."
+                    id="providerDescription" 
+                    placeholder={description} 
+                    value={inputData.providerDescription}
+                    onInput={handleInput}
                     rows={3}
                   />
                 </div>
@@ -75,24 +233,42 @@ const AddProvider = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address *</Label>
-                    <Input id="email" type="email" placeholder="info@provider.com" />
+                    <Input 
+                      id="providerEmail" 
+                      type="email" 
+                      placeholder={email}
+                      value={inputData.providerEmail}
+                      onInput={handleInput}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number *</Label>
-                    <Input id="phone" placeholder="+1 (555) 123-4567" />
+                    <Input 
+                      id="providerPhone" 
+                      placeholder={phone}
+                      value={inputData.providerPhone}
+                      onInput={handleInput}
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="website">Website</Label>
-                  <Input id="website" placeholder="https://www.provider.com" />
+                  <Input 
+                    id="providerWebsite"
+                    placeholder={website}
+                    value={inputData.providerWebsite}
+                    onInput={handleInput}
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="address">Address</Label>
                   <Textarea 
-                    id="address" 
-                    placeholder="Street address, city, state, zip code"
+                    id="providerAddress" 
+                    placeholder={address} 
+                    value={inputData.providerAddress}
+                    onInput={handleInput}
                     rows={2}
                   />
                 </div>
@@ -106,40 +282,58 @@ const AddProvider = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="license">License Number</Label>
-                    <Input id="license" placeholder="License number" />
+                    <Label htmlFor="license">License Number</Label>                    
+                    <Input 
+                      id="providerLicense"
+                      placeholder={license}
+                      value={inputData.providerLicense}
+                      onInput={handleInput}
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="established">Year Established</Label>
-                    <Input id="established" type="number" placeholder="2020" />
+                    <Label htmlFor="established">Year Established</Label>                   
+                    <Input 
+                      id="providerEstablished"
+                      type="number"
+                      placeholder={established}
+                      value={inputData.providerEstablished}
+                      onInput={handleInput}
+                    />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="employees">Number of Employees</Label>
-                    <Select>
+                    <Select value={providerEmployees} onValueChange={(val) => setProviderEmployees(val as ProviderEmployees)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select range" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1-10">1-10</SelectItem>
-                        <SelectItem value="11-50">11-50</SelectItem>
-                        <SelectItem value="51-100">51-100</SelectItem>
-                        <SelectItem value="100+">100+</SelectItem>
+                        {
+                          providerEmployeesOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))
+                        }
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="services">Services Offered</Label>
-                    <Select>
+                    <Select value={providerServices} onValueChange={(val) => setProviderServices(val as ProviderServices)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select services" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="hajj">Hajj Packages</SelectItem>
-                        <SelectItem value="umrah">Umrah Packages</SelectItem>
-                        <SelectItem value="both">Both Hajj & Umrah</SelectItem>
+                        {
+                          providerServicesOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))
+                        }
                       </SelectContent>
                     </Select>
                   </div>
@@ -155,11 +349,11 @@ const AddProvider = () => {
                 <CardTitle>Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button className="w-full">
+                <Button className="w-full" onClick={() => handleSaveProvider(false)}>
                   <Save className="h-4 w-4 mr-2" />
                   Save Provider
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={() => handleSaveProvider(true)}>
                   Save as Draft
                 </Button>
                 <Link to="/admin/providers" className="block">
@@ -177,22 +371,28 @@ const AddProvider = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Verification Status</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pending verification" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="verified">Verified</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Select value={providerVerificationStatus} onValueChange={(val) => setProviderVerificationStatus(val as ProviderVerificationStatus)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pending verification" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {
+                          providerVerificationStatusOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="notes">Admin Notes</Label>
                   <Textarea 
-                    id="notes" 
-                    placeholder="Internal notes about this provider..."
+                    id="providerAdminNotes" 
+                    placeholder={notes} 
+                    value={inputData.providerAdminNotes}
+                    onInput={handleInput}
                     rows={3}
                   />
                 </div>
