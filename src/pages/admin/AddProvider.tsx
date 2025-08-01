@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast"
+import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Building2, Save } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // File imports
 import { ADD_NEW_PROVIDER } from "@/lib/constant";
@@ -33,8 +33,12 @@ const AddProvider = () => {
     address,
     license,
     established,
-    notes
+    notes,
+    rating
   } = placeholder;
+
+  const location = useLocation();
+  const providerId = location?.state?.providerId ?? undefined;
 
   type ProviderStatus = typeof providerStatusOptions[number]["value"]; // "pending" | "active" | "suspended"
   type ProviderEmployees = typeof providerEmployeesOptions[number]["value"];
@@ -55,6 +59,7 @@ const AddProvider = () => {
     providerLicense: "",
     providerEstablished: "",
     providerAdminNotes: "",
+    providerRating: ""
   });
 
   const handleInput = (
@@ -75,6 +80,7 @@ const AddProvider = () => {
       providerLicense: "",
       providerEstablished: "",
       providerAdminNotes: "",
+      providerRating: ""
     });
     setProviderStatus("pending");
     setProviderEmployees("1-10");
@@ -128,6 +134,8 @@ const AddProvider = () => {
   const handleSaveProvider = async (isDraft: boolean = false) => {
     if (!validation()) return;
     const payload: any = {
+      type: providerId ? "PROVIDER_UPDATE" : "PROVIDER_CREATE",
+      providerId: providerId || undefined,
       isDraft,
       providerStatus,
       providerEmployees,
@@ -156,6 +164,43 @@ const AddProvider = () => {
     }
   };
 
+  const fetchProvider = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/providers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "PROVIDER_FETCH", providerId })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success") {
+        setProviderStatus(data.data.providerStatus);
+        setProviderEmployees(data.data.providerEmployees);
+        setProviderServices(data.data.providerServices);
+        setProviderVerificationStatus(data.data.providerVerificationStatus);
+        delete data.data.providerStatus;
+        delete data.data.providerEmployees;
+        delete data.data.providerServices;
+        delete data.data.providerVerificationStatus;
+        delete data.data.isDraft;
+        delete data.data._id;
+        setInputData(data.data);
+      } else {
+        toast({ title: data.message || "Something went wrong!" });
+      }
+    } catch (error) {
+      console.error("Error provider save data:", error);
+      toast({ title: "Something went wrong!" });
+    }
+  };
+
+  useEffect(() => {
+    if (providerId) {
+      fetchProvider();
+    }
+  }, [providerId]);
+
   console.log(inputData , providerStatus);
   return (
     <AdminLayout>
@@ -168,8 +213,10 @@ const AddProvider = () => {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Add New Provider</h1>
-            <p className="text-muted-foreground">Create a new travel agency or service provider</p>
+            <h1 className="text-3xl font-bold text-foreground">{providerId ? "Edit Provider" : "Add New Provider"}</h1>
+            <p className="text-muted-foreground">
+              {providerId ? "Edit travel agency or service provider" : "Create a new travel agency or service provider"}
+            </p>
           </div>
         </div>
 
@@ -385,6 +432,15 @@ const AddProvider = () => {
                         }
                       </SelectContent>
                     </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="rating">Rating</Label>
+                  <Input 
+                    id="providerRating"
+                    placeholder={rating}
+                    value={inputData.providerRating}
+                    onInput={handleInput}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="notes">Admin Notes</Label>

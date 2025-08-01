@@ -8,7 +8,8 @@ export const ADD_NEW_PROVIDER = {
     address: "Street address, city, state, zip code",
     license: "License number",
     established: "2020",
-    notes: "Internal notes about this provider..."
+    notes: "Internal notes about this provider...",
+    rating: "Ratings from 1 to 5",
   },  
   providerStatusOptions: [
     { label: "Pending", value: "pending" },
