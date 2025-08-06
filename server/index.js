@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const connectDB = require('./db');
 const healthRoute = require('./routes/health');
 const providersRoute = require('./routes/providers');
+const packagesRoute = require('./routes/packages');
 const app = express();
 
 dotenv.config();
@@ -27,6 +28,7 @@ connectDB();
 
 app.use("/api/health", healthRoute);
 app.use("/api/providers", providersRoute);
+app.use("/api/packages", packagesRoute);
 
 // console.log('PORT : ', process.env.PORT);
 const port = process.env.PORT || 8000;

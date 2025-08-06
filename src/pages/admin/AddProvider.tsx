@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Building2, Save } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // File imports
 import { ADD_NEW_PROVIDER } from "@/lib/constant";
@@ -38,6 +38,7 @@ const AddProvider = () => {
   } = placeholder;
 
   const location = useLocation();
+  const navigate = useNavigate();
   const providerId = location?.state?.providerId ?? undefined;
 
   type ProviderStatus = typeof providerStatusOptions[number]["value"]; // "pending" | "active" | "suspended"
@@ -154,7 +155,8 @@ const AddProvider = () => {
 
       if (response.ok) {
         toast({ title: data.message });
-        handleCancel();
+        handleCancel();        
+        navigate("/admin/providers");
       } else {
         toast({ title: data.message || "Something went wrong!" });
       }

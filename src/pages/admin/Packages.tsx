@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import {
   MapPin, 
   Calendar,
   DollarSign,
+  IndianRupee,
   Users,
   Edit,
   Trash2,
@@ -33,6 +35,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import { toast } from "@/hooks/use-toast";
+
+// File imports
+import { CREATE_PACKAGE } from "@/lib/constant";
+import { set } from 'date-fns';
 
 const packages = [
   {
@@ -83,6 +99,120 @@ const packages = [
 ];
 
 const Packages = () => {
+
+  // Constants
+  const { 
+    packageRoomTypeOptions,
+    packageTypeOptions,
+    packageCurrencyOptions,
+    packageCategoryOptions
+  } = CREATE_PACKAGE;
+
+  const [packagesData, setPackagesData] = useState([]);
+  const [packageChange, setPackageChange] = useState("");
+
+  const getRoomType = (status: string) => {
+    const obj = packageRoomTypeOptions.find((option) => option.value === status);
+    return obj?.label || "";
+  };
+
+  const getCurrency = (status: string) => {
+    const obj = packageCurrencyOptions.find((option) => option.value === status);
+    return obj?.label || "";
+  };
+
+  const getType = (status: string) => {
+    const obj = packageTypeOptions.find((option) => option.value === status);
+    return obj?.label || "";
+  };
+
+  const getCategory = (status: string) => {
+    const obj = packageCategoryOptions.find((option) => option.value === status);
+    return obj?.label || "";
+  };
+
+  const fetchPackages = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "PACKAGE_FETCH_ALL" })     
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success" && data.data.length > 0) {
+        setPackagesData(data.data);
+      } else {
+        toast({ title: data.message || "Something went wrong!" });
+      }
+    } catch (error) {
+      console.error("Error package save data:", error);
+      toast({ title: "Something went wrong!" });
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "PACKAGE_DELETE", packageId: id })     
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success") {
+        toast({ title: data.message });
+        fetchPackages();
+      } else {
+        toast({ title: data.message || "Something went wrong!" });
+      }
+    } catch (error) {
+      console.error("Error package save data:", error);
+      toast({ title: "Something went wrong!" });
+    }
+  }
+
+  const handleDuplicatePackage = async (pkg) => {
+    pkg._id ? delete pkg._id : null;
+    const payload = {
+      type: "PACKAGE_CREATE",
+      ...pkg
+    };
+    try {
+      const response = await fetch("http://localhost:8000/api/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({ title: data.message });
+        fetchPackages();
+      } else {
+        toast({ title: data.message || "Something went wrong!" });
+      }
+    } catch (error) {
+      console.error("Error package save data:", error);
+      toast({ title: "Something went wrong!" });
+    }
+  };
+  
+  const filteredPackagesData = useMemo(() => {
+    if (packageChange.length < 2) return packagesData;
+    return packagesData.filter((pkg) =>
+      pkg.packageTitle.toLowerCase().includes(packageChange.toLowerCase())
+    );
+  }, [packageChange, packagesData]);
+
+  useEffect(() => {
+    fetchPackages();
+    console.log(packages);
+  }, []);
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -105,7 +235,7 @@ const Packages = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search packages..." className="pl-10" />
+                <Input placeholder="Search packages..." className="pl-10" onChange={(e) => setPackageChange(e.target.value)} />
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="default">
@@ -145,68 +275,168 @@ const Packages = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {packages.map((pkg) => (
-                  <TableRow key={pkg.id}>
+                {filteredPackagesData.map((pkg) => (
+                  <TableRow key={pkg._id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
                           <Package className="h-4 w-4 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">{pkg.title}</p>
+                          <p className="font-medium text-foreground">{pkg.packageTitle}</p>
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <MapPin className="h-3 w-3" />
-                            {pkg.location}
+                            {pkg.packageLocations}
                           </div>
-                          {pkg.featured && (
-                            <Badge variant="accent" className="mt-1">Featured</Badge>
-                          )}
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            {pkg.packageFeatured && (
+                              <Badge variant="warning" className="mt-1">Featured</Badge>
+                            )}
+                            {pkg.packageActive && (
+                              <Badge variant="secondary" className="mt-1">Active</Badge>
+                            )}
+                            {pkg.packageInstantBooking && (
+                              <Badge variant="default" className="mt-1">Instant Booking</Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="text-sm font-medium">{pkg.provider}</p>
+                      <p className="text-sm font-medium">{pkg.packageProvider}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={pkg.type === "hajj" ? "primary" : "secondary"}>
-                        {pkg.type.toUpperCase()}
+                      <Badge variant={pkg.packageType === "both" ? "primary" : "secondary"}>
+                        {getType(pkg.packageType).toUpperCase()}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
                         <Calendar className="h-3 w-3" />
-                        {pkg.duration} days
+                        {pkg.packageDuration} days
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
-                        <DollarSign className="h-3 w-3" />
-                        {pkg.price.from.toLocaleString()} - {pkg.price.to.toLocaleString()}
+                        <IndianRupee className="h-3 w-3" />
+                        {pkg.packagePriceFrom.toLocaleString()} - {pkg.packagePriceTo.toLocaleString()}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1 text-sm">
                           <Users className="h-3 w-3" />
-                          {pkg.booked}/{pkg.capacity}
+                          {pkg.packageMinimumBooking}/{pkg.packageCapacity}
                         </div>
                         <div className="w-20 bg-secondary rounded-full h-2">
                           <div 
                             className="bg-primary h-2 rounded-full" 
-                            style={{ width: `${(pkg.booked / pkg.capacity) * 100}%` }}
+                            style={{ width: `${(Number(pkg.packageMinimumBooking) / Number(pkg.packageCapacity)) * 100}%` }}
                           />
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant={
-                        pkg.status === "active" ? "success" : 
-                        pkg.status === "draft" ? "warning" : "secondary"
+                        pkg.isDraft === false ? "success" : 
+                        pkg.isDraft === true ? "warning" : "secondary"
                       }>
-                        {pkg.status}
+                        {pkg.isDraft ? "Draft" : "Active"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right flex items-end flex-col">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" className="ml-12" size="sm">
+                            <Eye className="h-9 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Package Details</DialogTitle>
+                            <DialogDescription>
+                              Complete information for selected package
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="text-sm font-medium">Package Title</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageTitle}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Provider</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageProvider}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Package Type</label>
+                                <p className="text-sm text-muted-foreground">{getType(pkg.packageType)}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Duration (Days)</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageDuration}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Locations Covered</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageLocations}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Makkah Hotel</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageMakkahHotel}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Madinah Hotel</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageMadinahHotel}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Room Type</label>
+                                <p className="text-sm text-muted-foreground">{getRoomType(pkg.packageRoomType)}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Price Range</label>
+                                <p className="text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1 text-sm">
+                                    <IndianRupee className="h-3 w-3" />
+                                    {pkg.packagePriceFrom.toLocaleString()} - {pkg.packagePriceTo.toLocaleString()}
+                                  </div>
+                                </p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Total Capacity</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageCapacity}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Minimum Booking</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageMinimumBooking}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Tags</label>
+                                <p className="text-sm text-muted-foreground">{pkg.packageTags}</p>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Package Category</label>
+                              <p className="text-sm text-muted-foreground">{getCategory(pkg.packageCategory)}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Package Description</label>
+                              <p className="text-sm text-muted-foreground">{pkg.packageDescription}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Departure Information</label>
+                              <p className="text-sm text-muted-foreground">{pkg.packageDepartureDescription}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Inclusions</label>
+                              <p className="text-sm text-muted-foreground">{pkg.packageInclusions}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Exclusions</label>
+                              <p className="text-sm text-muted-foreground">{pkg.packageExclusions}</p>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm">
@@ -214,19 +444,17 @@ const Packages = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Package
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <Link to="/admin/packages/create" state={{ packageId: pkg._id }}>
+                            <DropdownMenuItem>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit Package
+                            </DropdownMenuItem>
+                          </Link>
+                          <DropdownMenuItem onClick={() => handleDuplicatePackage(pkg)}>
                             <Copy className="h-4 w-4 mr-2" />
                             Duplicate
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(pkg._id)}>
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete
                           </DropdownMenuItem>

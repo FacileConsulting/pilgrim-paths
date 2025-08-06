@@ -33,3 +33,43 @@ export const ADD_NEW_PROVIDER = {
     { label: "Rejected", value: "rejected" },
   ], 
 };
+
+export const CREATE_PACKAGE = {
+  placeholder: {
+    title: "Umrah Deluxe Package 2024",
+    packageDescription: "Detailed description of the package including accommodations, transport, and services...",
+    duration: "1",
+    departureDescription: "Departure city, airport details, and timing information...",
+    locations: "Makkah, Madinah, Mina",
+    makkahHotel: "Hotel name and rating",
+    madinahHotel: "Hotel name and rating",
+    priceFrom: "3500",
+    priceTo: "4200",
+    capacity: "50",
+    minimumBooking: "1",
+    inclusions: "List all included services: flights, accommodation, meals, transport, guides, etc.",
+    exclusions: "List services not included: personal expenses, optional tours, etc.",
+    tags: "family-friendly, budget, luxury",
+  }, 
+  packageRoomTypeOptions: [
+    { label: "Single Room", value: "single" },
+    { label: "Double Room", value: "double" },
+    { label: "Triple Room", value: "triple" },
+    { label: "Quad Room", value: "quad" }
+  ], 
+  packageTypeOptions: [
+    { label: "Hajj", value: "hajj" },
+    { label: "Umrah", value: "umrah" },
+    { label: "Hajj & Umrah", value: "both" },
+  ], 
+  packageCurrencyOptions: [
+    { label: "INR", value: "inr" }
+  ], 
+  packageCategoryOptions: [
+    { label: "Economy", value: "economy" },
+    { label: "Standard", value: "standard" },
+    { label: "Deluxe", value: "deluxe" },
+    { label: "Premium", value: "premium" },
+    { label: "Luxury", value: "luxury" },
+  ], 
+};

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,21 +82,6 @@ const providers = [
   },
 ];
 
-const inquiry = {
-  id: 1,
-  customerName: "Ahmed Al-Rashid",
-  customerEmail: "ahmed@email.com",
-  customerPhone: "+1 (555) 123-4567",
-  packageTitle: "Umrah Deluxe Package 2024",
-  provider: "Al-Haramain Travel",
-  message: "I'm interested in this package for 4 people. What are the available dates in March?",
-  preferredDates: ["2024-03-15", "2024-03-22"],
-  numberOfTravelers: 4,
-  status: "pending",
-  createdAt: "2024-01-20T10:30:00Z",
-  respondedAt: null,
-};
-
 const Providers = () => {
 
   // Constants
@@ -107,6 +92,7 @@ const Providers = () => {
   } = ADD_NEW_PROVIDER;
 
   const [providersData, setProvidersData] = useState([]);
+  const [providerChange, setProviderChange] = useState("");
 
   const getStatus = (status: string) => {
     const statusObj = providerStatusOptions.find((option) => option.value === status);
@@ -176,6 +162,13 @@ const Providers = () => {
     }
   }
 
+  const filteredProvidersData = useMemo(() => {
+    if (providerChange.length < 2) return providersData;
+    return providersData.filter((provider) =>
+      provider.providerName.toLowerCase().includes(providerChange.toLowerCase())
+    );
+  }, [providerChange, providersData]);
+
   useEffect(() => {
     fetchProviders();
     console.log(providers);
@@ -203,7 +196,7 @@ const Providers = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search providers..." className="pl-10" />
+                <Input placeholder="Search providers..." className="pl-10" onChange={(e) => setProviderChange(e.target.value)} />
               </div>
               <Button variant="outline" size="default">
                 <Filter className="h-4 w-4 mr-2" />
@@ -215,7 +208,7 @@ const Providers = () => {
 
         {/* Providers Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {providersData.map((provider) => (
+          {filteredProvidersData.map((provider) => (
             <Card key={provider._id} className="shadow-card hover:shadow-elevated transition-shadow">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
