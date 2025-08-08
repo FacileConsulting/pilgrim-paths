@@ -1,6 +1,15 @@
 const { ObjectId } = require('mongodb');
 const Provider = require('./models/providers');
 const Package = require('./models/packages');
+const Inquiry = require('./models/inquiries');
+
+const getAllInquiries = async (query) => {
+  return await Inquiry.find(query);
+}
+
+const updateInquiry = async (query, data) => {
+  return await Inquiry.updateOne({ _id: new ObjectId(query) }, { $set: data } );
+}
 
 const createPackage = (query) => {
   return new Package(query);
@@ -47,6 +56,8 @@ const saveInDB = async (data) => {
 }
 
 module.exports = {
+  getAllInquiries,
+  updateInquiry,
   getAllPackages,
   createPackage,
   deletePackage,

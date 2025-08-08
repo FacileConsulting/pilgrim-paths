@@ -16,6 +16,43 @@ const constant = () => {
         status: nS
       }
     },
+    inquiries: {
+      update: 'INQUIRY_UPDATE',
+      fetchAll: 'INQUIRY_FETCH_ALL',
+      noInquiry: {
+        message: 'Inquiry does not exit. Contact Admin',
+        noInquiry: true,
+        status: yS
+      },
+      notUpdated: {
+        message: 'No Modification in Inquiry',
+        notUpdated: true,
+        status: yS
+      },
+      updated: {
+        message: 'Inquiry updated successfully',
+        updated: true,
+        status: yS
+      },
+      notFound: {
+        message: 'Inquiry does not found',
+        notFound: true,
+        status: yS
+      },
+      failed: {
+        message: 'Something went wrong. Please check with admin',
+        data: [],
+        status: yS
+      },
+      errorType: {
+        message: 'Error in /inquiry API ',
+        status: nS
+      },
+      error: {
+        message: 'Error in /inquiry method',
+        status: nS
+      }
+    },
     packages: {
       create: 'PACKAGE_CREATE',
       update: 'PACKAGE_UPDATE',
