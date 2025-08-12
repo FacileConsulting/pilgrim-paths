@@ -2,6 +2,19 @@ const { ObjectId } = require('mongodb');
 const Provider = require('./models/providers');
 const Package = require('./models/packages');
 const Inquiry = require('./models/inquiries');
+const Dashboard = require('./models/dashboard');
+
+const createDashboard = (query) => {
+  return new Dashboard(query);
+}
+
+const getDashboard = async (query) => {
+  return await Dashboard.findOne(query);
+}
+
+const updateDashboard = async (query, data) => {
+  return await Dashboard.updateOne({ _id: new ObjectId(query) }, { $set: data } );
+}
 
 const getAllInquiries = async (query) => {
   return await Inquiry.find(query);
@@ -56,6 +69,9 @@ const saveInDB = async (data) => {
 }
 
 module.exports = {
+  createDashboard,
+  getDashboard,
+  updateDashboard,
   getAllInquiries,
   updateInquiry,
   getAllPackages,

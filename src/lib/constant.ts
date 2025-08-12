@@ -1,3 +1,11 @@
+
+import { 
+  Building2, 
+  Package, 
+  MessageSquare,
+  IndianRupee,
+} from "lucide-react";
+
 export const ADD_NEW_PROVIDER = {
   placeholder: {
     name: "Ex:Al-Haramain Travel Agency",
@@ -73,3 +81,32 @@ export const CREATE_PACKAGE = {
     { label: "Luxury", value: "luxury" },
   ], 
 };
+
+export const DASHBOARD = {
+  stats: [
+    {
+      title: "Total Providers",
+      icon: Building2,
+      curr: "totalProvidersCurrMonth",
+      last: "totalProvidersLastMonth",
+    },
+    {
+      title: "Active Packages",
+      icon: Package,
+      curr: "activePackagesCurrMonth",
+      last: "activePackagesLastMonth",
+    },
+    {
+      title: "New Inquiries",
+      icon: MessageSquare,
+      curr: "newInquiriesCurrMonth",
+      last: "newInquiriesLastMonth",
+    },
+    {
+      title: "Revenue (Month)",
+      icon: IndianRupee,
+      curr: "revenueCurrMonth",
+      last: "revenueLastMonth",
+    },
+  ],
+}

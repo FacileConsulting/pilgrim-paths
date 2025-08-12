@@ -16,6 +16,49 @@ const constant = () => {
         status: nS
       }
     },
+    dashboard: {
+      create: 'DASHBOARD_CREATE',
+      update: 'DASHBOARD_UPDATE',
+      fetch: 'DASHBOARD_FETCH',
+      noDashboard: {
+        message: 'Dashboard does not exit. Contact Admin',
+        noDashboard: true,
+        status: yS
+      },
+      notUpdated: {
+        message: 'No Modification in Dashboard',
+        notUpdated: true,
+        status: yS
+      },
+      updated: {
+        message: 'Dashboard updated successfully',
+        updated: true,
+        status: yS
+      },
+      notFound: {
+        message: 'Dashboard does not found',
+        notFound: true,
+        status: yS
+      },
+      failed: {
+        message: 'Something went wrong. Please check with admin',
+        data: [],
+        status: yS
+      },
+      created: {
+        message: 'Dashboard created successfully',
+        created: true,
+        status: yS
+      },
+      errorType: {
+        message: 'Error in /dashboard API ',
+        status: nS
+      },
+      error: {
+        message: 'Error in /dashboard method',
+        status: nS
+      }
+    },
     inquiries: {
       update: 'INQUIRY_UPDATE',
       fetchAll: 'INQUIRY_FETCH_ALL',

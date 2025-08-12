@@ -21,6 +21,10 @@ const inquiriesSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  inquiryRatingProvider: {
+    type: String,
+    required: true
+  },
   inquiryTravelersNumber: {
     type: String,
     required: true

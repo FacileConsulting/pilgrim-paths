@@ -1,5 +1,7 @@
 const { constant } = require('../constant');
 const { 
+  getDashboard,
+  updateDashboard,
   getAllInquiries,
   updateInquiry,
   saveInDB
@@ -26,6 +28,9 @@ exports.inquiries = async (req, res) => {
       if (!inquiriesAllData || inquiriesAllData.length == 0) {
         res.status(c200).send({ ...inquiries.failed });
       } else {
+        const result = await updateDashboard('6899669c88070a0970315bcc', {
+          newInquiriesCurrMonth: inquiriesAllData.filter(item => item.inquiryStatus === 'Pending').length
+        });
         res.status(c200).send({
           status: yS,
           data: inquiriesAllData
@@ -37,6 +42,18 @@ exports.inquiries = async (req, res) => {
       });
       console.log('!!!!!!!!!!!@@!@!@ result', result);
       if (result.nModified) {
+        const dashboard = await getDashboard({ _id: '6899669c88070a0970315bcc' });
+        const result = await updateDashboard('6899669c88070a0970315bcc', {      
+          activity: [
+            {
+              time: new Date(),
+              type: 'inquiry',
+              name: req.body.inquiryProvider,
+              title: `Inquiry Updated: ${req.body.inquiryPackage}`,
+              status: req.body.inquiryStatus
+            }, 
+            ...dashboard.activity]
+        });
         return res.status(c200).send({ ...inquiries.updated });
       } else if (result.nModified === 0) {
         return res.status(c200).send({ ...inquiries.notUpdated });
