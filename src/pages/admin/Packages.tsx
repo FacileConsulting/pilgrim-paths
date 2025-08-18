@@ -292,10 +292,10 @@ const Packages = () => {
                               <Badge variant="warning" className="mt-1">Featured</Badge>
                             )}
                             {pkg.packageActive && (
-                              <Badge variant="secondary" className="mt-1">Active</Badge>
+                              <Badge variant="success" className="mt-1">Active</Badge>
                             )}
                             {pkg.packageInstantBooking && (
-                              <Badge variant="default" className="mt-1">Instant Booking</Badge>
+                              <Badge variant="primary" className="mt-1">Instant Booking</Badge>
                             )}
                           </div>
                         </div>

@@ -115,7 +115,7 @@ const Providers = () => {
   };
 
   const getVerificationStatusColor = (status: string) => {
-    const color = status === "active" ? "success" : status === "pending" ? "warning" : "destructive";
+    const color = status === "verified" ? "success" : status === "pending" ? "warning" : "destructive";
     return color;
   };
 

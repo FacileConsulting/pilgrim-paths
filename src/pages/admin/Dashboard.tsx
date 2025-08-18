@@ -240,7 +240,7 @@ const Dashboard = () => {
                 Recent Activity
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" style={{ overflowY: 'auto', maxHeight: '270px' }}>
               {activityData.map((activity, index) => (
                 <div key={`${index}_idx`} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
                   <div className="p-2 rounded-full bg-primary/10">
@@ -253,7 +253,7 @@ const Dashboard = () => {
                     <p className="text-xs text-muted-foreground">{activity.name}</p>
                     <p className="text-xs text-muted-foreground">{timeAgo(activity.time)}</p>
                   </div>
-                  <Badge variant={activity.status === "pending" ? "warning" : "secondary"}>
+                  <Badge variant={activity.status === "Pending" ? "warning" : activity.status === "Active" ? "success" : activity.status === "Closed" || activity.status === "Suspended" || activity.status === "Inactive" || activity.status === "Deleted" ? "destructive" : activity.status === "Responded" ? "primary" : "outline"}>
                     {activity.status}
                   </Badge>
                 </div>
