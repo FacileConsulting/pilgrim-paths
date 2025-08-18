@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -131,7 +131,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-primary/5 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center gap-2">
@@ -141,13 +141,12 @@ const Home = () => {
               <span className="text-xl font-bold text-foreground">HajjUmrah</span>
             </Link>
             
-            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/" className="text-foreground hover:text-primary">Home</Link>
-              <Link to="/packages" className="text-muted-foreground hover:text-primary">Packages</Link>
-              <Link to="/providers" className="text-muted-foreground hover:text-primary">Providers</Link>
+              <Link to="/" className="text-foreground hover:text-primary font-medium">Home</Link>
               <Link to="/about" className="text-muted-foreground hover:text-primary">About</Link>
+              <Link to="/team" className="text-muted-foreground hover:text-primary">Team</Link>
               <Link to="/contact" className="text-muted-foreground hover:text-primary">Contact</Link>
+              <Link to="/support" className="text-muted-foreground hover:text-primary">Support</Link>
               <Link to="/admin">
                 <Button variant="outline" size="sm">Admin Portal</Button>
               </Link>
@@ -168,11 +167,11 @@ const Home = () => {
           {mobileMenuOpen && (
             <nav className="md:hidden mt-4 pb-4 border-t border-border pt-4">
               <div className="flex flex-col gap-2">
-                <Link to="/" className="text-foreground hover:text-primary py-2">Home</Link>
-                <Link to="/packages" className="text-muted-foreground hover:text-primary py-2">Packages</Link>
-                <Link to="/providers" className="text-muted-foreground hover:text-primary py-2">Providers</Link>
+                <Link to="/" className="text-foreground hover:text-primary py-2 font-medium">Home</Link>
                 <Link to="/about" className="text-muted-foreground hover:text-primary py-2">About</Link>
+                <Link to="/team" className="text-muted-foreground hover:text-primary py-2">Team</Link>
                 <Link to="/contact" className="text-muted-foreground hover:text-primary py-2">Contact</Link>
+                <Link to="/support" className="text-muted-foreground hover:text-primary py-2">Support</Link>
                 <Link to="/admin" className="pt-2">
                   <Button variant="outline" size="sm" className="w-full">Admin Portal</Button>
                 </Link>
@@ -270,6 +269,16 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Customer Testimonials / Feedback Section */}
+      <div className="container mx-auto px-4 py-16 bg-secondary/20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-foreground mb-4">What Our Pilgrims Say</h2>
+          <p className="text-muted-foreground">Hear from thousands of satisfied customers</p>
+        </div>
+
+        <TestimonialCarousel />
+      </div>
+
       {/* Trust Indicators */}
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
@@ -293,7 +302,7 @@ const Home = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border">
+      <footer className="bg-primary/5 border-t border-border">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
@@ -316,17 +325,17 @@ const Home = () => {
             <div>
               <h4 className="font-semibold text-foreground mb-4">Quick Links</h4>
               <div className="space-y-2">
-                <Link to="/packages" className="block text-muted-foreground hover:text-primary">Browse Packages</Link>
-                <Link to="/providers" className="block text-muted-foreground hover:text-primary">Find Providers</Link>
                 <Link to="/about" className="block text-muted-foreground hover:text-primary">About Us</Link>
+                <Link to="/team" className="block text-muted-foreground hover:text-primary">Our Team</Link>
                 <Link to="/contact" className="block text-muted-foreground hover:text-primary">Contact</Link>
+                <Link to="/support" className="block text-muted-foreground hover:text-primary">Support</Link>
               </div>
             </div>
             
             <div>
               <h4 className="font-semibold text-foreground mb-4">Support</h4>
               <div className="space-y-2">
-                <Link to="/help" className="block text-muted-foreground hover:text-primary">Help Center</Link>
+                <Link to="/support" className="block text-muted-foreground hover:text-primary">Help Center</Link>
                 <Link to="/faq" className="block text-muted-foreground hover:text-primary">FAQ</Link>
                 <Link to="/terms" className="block text-muted-foreground hover:text-primary">Terms of Service</Link>
                 <Link to="/privacy" className="block text-muted-foreground hover:text-primary">Privacy Policy</Link>
@@ -423,7 +432,7 @@ const SearchResults = ({ query, location, onContactClick }) => {
   return (
     <div className="min-h-screen bg-background">
       {/* Search Header */}
-      <header className="border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-primary/5 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2">
@@ -549,5 +558,106 @@ const SearchResultCard = ({ package: pkg, onContactClick }) => {
     </Card>
   );
 };
+
+// Testimonial Carousel Component
+const TestimonialCarousel = () => {
+  const testimonials = [
+    {
+      id: 1,
+      name: "Ahmed Hassan",
+      location: "New York, USA",
+      rating: 5,
+      text: "Absolutely amazing experience! The package was well organized and the staff was incredibly helpful throughout our Umrah journey.",
+      package: "Umrah Deluxe Package"
+    },
+    {
+      id: 2,
+      name: "Fatima Al-Zahra",
+      location: "London, UK",
+      rating: 5,
+      text: "Perfect Hajj experience with excellent accommodation and transportation. Highly recommend to all pilgrims.",
+      package: "Hajj Premium Experience"
+    },
+    {
+      id: 3,
+      name: "Muhammad Ali",
+      location: "Toronto, Canada",
+      rating: 5,
+      text: "Great value for money. Everything was arranged perfectly and the guides were very knowledgeable.",
+      package: "Budget Umrah Package"
+    },
+    {
+      id: 4,
+      name: "Aisha Khan",
+      location: "Sydney, Australia",
+      rating: 4,
+      text: "Wonderful spiritual journey with professional service. The whole family had an amazing time.",
+      package: "Family Hajj Package"
+    }
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => 
+        prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="relative overflow-hidden">
+        <div 
+          className="flex transition-transform duration-500 ease-in-out"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {testimonials.map((testimonial) => (
+            <div key={testimonial.id} className="w-full flex-shrink-0 px-4">
+              <Card className="shadow-card">
+                <CardContent className="p-8 text-center">
+                  <div className="flex justify-center mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`h-5 w-5 ${i < testimonial.rating ? 'fill-accent text-accent' : 'text-muted-foreground'}`} 
+                      />
+                    ))}
+                  </div>
+                  <blockquote className="text-lg text-muted-foreground mb-6 italic">
+                    "{testimonial.text}"
+                  </blockquote>
+                  <div className="space-y-1">
+                    <div className="font-semibold text-foreground">{testimonial.name}</div>
+                    <div className="text-sm text-muted-foreground">{testimonial.location}</div>
+                    <Badge variant="secondary" className="text-xs">
+                      {testimonial.package}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Pagination dots */}
+      <div className="flex justify-center gap-2 mt-6">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              index === currentIndex ? 'bg-primary' : 'bg-muted'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default Home;
