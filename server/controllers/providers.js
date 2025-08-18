@@ -1,5 +1,7 @@
 const { constant } = require('../constant');
 const { 
+  getSettings,
+  updateSettings,
   getDashboard,
   updateDashboard,
   createProvider,
@@ -10,6 +12,21 @@ const {
   saveInDB
 } = require('../mongo');
 
+const apiChecker = async () => {
+  const settings = await getSettings({ _id: '689d5ad061d5569a4efe288f' });
+  if (!settings.publicAPIAccess) {
+    return { stat: 403, message: "Forbidden" };
+  }
+  if (settings.apiRateCounter <= settings.apiRateLimit) {
+    await updateSettings('689d5ad061d5569a4efe288f', {      
+      apiRateCounter: settings.apiRateCounter + 1
+    });
+    return { stat: undefined };
+  } else {
+    return { stat: 429, message: "Rate limit exceeded" }; 
+  }
+}
+
 exports.providers = async (req, res) => {
   const { 
     c200, 
@@ -19,11 +36,24 @@ exports.providers = async (req, res) => {
     providers, 
   } = constant();
   try {
-    console.log('req.body', req.body);
+    const { stat, message } = await apiChecker();
+    if (stat) {
+      return res.status(stat).json({ error: message });
+    }
     const type = req.body.type;
     const { providerId } = req.body;
     providerId ? delete req.body.providerId : null; 
     delete req.body.type;
+
+    const settingsChange = async () => {
+      const settings = await getSettings({ _id: '689d5ad061d5569a4efe288f' });
+      console.log('dfdfdfssd', settings);
+      if (settings.providerNotification) {
+        await updateSettings('689d5ad061d5569a4efe288f', {      
+          notificationCounter: settings.notificationCounter + 1
+        });
+      }
+    }
     if (type === providers.create) {
       const providerData = await createProvider({
         ...req.body
@@ -40,6 +70,7 @@ exports.providers = async (req, res) => {
           }, 
           ...dashboard.activity]
       });
+      await settingsChange();
       await saveInDB(providerData);
       res.status(c200).send({ ...providers.created });
     } else if (type === providers.fetchAll) {
@@ -74,6 +105,7 @@ exports.providers = async (req, res) => {
             }, 
             ...dashboard.activity]
         });
+        await settingsChange();
         return res.status(c200).send({ ...providers.deleted });
       } else {
         return res.status(c200).send({ ...providers.notFound });
@@ -97,6 +129,7 @@ exports.providers = async (req, res) => {
             }, 
             ...dashboard.activity]
         });
+        await settingsChange();
         return res.status(c200).send({ ...providers.updated });
       } else if (result.nModified === 0) {
         return res.status(c200).send({ ...providers.notUpdated });

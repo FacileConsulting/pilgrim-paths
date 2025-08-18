@@ -1,11 +1,28 @@
 const { constant } = require('../constant');
 const { 
+  getSettings,
+  updateSettings,
   getDashboard,
   updateDashboard,
   getAllInquiries,
   updateInquiry,
   saveInDB
 } = require('../mongo');
+
+const apiChecker = async () => {
+  const settings = await getSettings({ _id: '689d5ad061d5569a4efe288f' });
+  if (!settings.publicAPIAccess) {
+    return { stat: 403, message: "Forbidden" };
+  }
+  if (settings.apiRateCounter <= settings.apiRateLimit) {
+    await updateSettings('689d5ad061d5569a4efe288f', {      
+      apiRateCounter: settings.apiRateCounter + 1
+    });
+    return { stat: undefined };
+  } else {
+    return { stat: 429, message: "Rate limit exceeded" }; 
+  }
+}
 
 exports.inquiries = async (req, res) => {
   const { 
@@ -16,6 +33,10 @@ exports.inquiries = async (req, res) => {
     inquiries, 
   } = constant();
   try {
+    const { stat, message } = await apiChecker();
+    if (stat) {
+      return res.status(stat).json({ error: message });
+    }
     console.log('req.body', req.body);
     const type = req.body.type;
     const inquiryId = req.body._id;

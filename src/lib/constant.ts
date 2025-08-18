@@ -18,6 +18,7 @@ export const ADD_NEW_PROVIDER = {
     established: "2020",
     notes: "Internal notes about this provider...",
     rating: "Ratings from 1 to 5",
+    host: "smtp.gmail.com",
   },  
   providerStatusOptions: [
     { label: "Pending", value: "pending" },

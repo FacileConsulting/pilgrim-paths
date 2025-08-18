@@ -16,6 +16,56 @@ const constant = () => {
         status: nS
       }
     },
+    settings: {
+      dbCreate: 'DB_BACKUP_CREATE',
+      dbRestore: 'DB_BACKUP_RESTORE',
+      update: 'SETTINGS_UPDATE',
+      fetch: 'SETTINGS_FETCH',
+      systemStatus: 'SYSTEM_STATUS',
+      noSettings: {
+        message: 'Settings does not exit. Contact Admin',
+        noSettings: true,
+        status: yS
+      },
+      notUpdated: {
+        message: 'No Modification in Settings',
+        notUpdated: true,
+        status: yS
+      },
+      dbCreated: {
+        message: 'Database Backup created successfully',
+        dbCreated: true,
+        status: yS
+      },
+      dbRestored: {
+        message: 'Database Backup restored successfully',
+        dbRestored: true,
+        status: yS
+      },
+      updated: {
+        message: 'Settings updated successfully',
+        updated: true,
+        status: yS
+      },
+      notFound: {
+        message: 'Settings does not found',
+        notFound: true,
+        status: yS
+      },
+      failed: {
+        message: 'Something went wrong. Please check with admin',
+        data: [],
+        status: yS
+      },
+      errorType: {
+        message: 'Error in /settings API ',
+        status: nS
+      },
+      error: {
+        message: 'Error in /settings method',
+        status: nS
+      }
+    },
     dashboard: {
       create: 'DASHBOARD_CREATE',
       update: 'DASHBOARD_UPDATE',

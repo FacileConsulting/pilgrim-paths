@@ -1,8 +1,25 @@
 const { constant } = require('../constant');
 const {
+  updateSettings,
+  getSettings,
   getDashboard,
   saveInDB
 } = require('../mongo');
+
+const apiChecker = async () => {
+  const settings = await getSettings({ _id: '689d5ad061d5569a4efe288f' });
+  if (!settings.publicAPIAccess) {
+    return { stat: 403, message: "Forbidden" };
+  }
+  if (settings.apiRateCounter <= settings.apiRateLimit) {
+    await updateSettings('689d5ad061d5569a4efe288f', {      
+      apiRateCounter: settings.apiRateCounter + 1
+    });
+    return { stat: undefined };
+  } else {
+    return { stat: 429, message: "Rate limit exceeded" }; 
+  }
+}
 
 exports.dashboard = async (req, res) => {
   const { 
@@ -13,6 +30,10 @@ exports.dashboard = async (req, res) => {
     dashboard, 
   } = constant();
   try {
+    const { stat, message } = await apiChecker();
+    if (stat) {
+      return res.status(stat).json({ error: message });
+    }
     const type = req.body.type;
     if (type === dashboard.fetch) {
       const result = await getDashboard({ _id: '6899669c88070a0970315bcc' });
@@ -25,7 +46,6 @@ exports.dashboard = async (req, res) => {
         });
       }
     }
-
   } catch (error) {
     console.error(error);
     return res.status(c500).send({ ...providers.error });

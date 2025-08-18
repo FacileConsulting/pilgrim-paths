@@ -9,6 +9,7 @@ const providersRoute = require('./routes/providers');
 const packagesRoute = require('./routes/packages');
 const inquiriesRoute = require('./routes/inquiries');
 const dashboardRoute = require('./routes/dashboard');
+const settingsRoute = require('./routes/settings');
 const app = express();
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use("/api/providers", providersRoute);
 app.use("/api/packages", packagesRoute);
 app.use("/api/inquiries", inquiriesRoute);
 app.use("/api/dashboard", dashboardRoute);
+app.use("/api/settings", settingsRoute);
 
 // console.log('PORT : ', process.env.PORT);
 const port = process.env.PORT || 8000;

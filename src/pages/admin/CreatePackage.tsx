@@ -14,6 +14,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 // File imports
 import { CREATE_PACKAGE } from "@/lib/constant";
 
+
 const CreatePackage = () => {
   
   // Constants
@@ -612,7 +613,6 @@ const CreatePackage = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="active">Active Status</Label>
-                  {/* <Switch id="active" defaultChecked /> */}
                   <Switch 
                     id="packageActive" 
                     checked={inputData.packageActive}                    
@@ -621,7 +621,6 @@ const CreatePackage = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="instant-booking">Instant Booking</Label>
-                  {/* <Switch id="instant-booking" /> */}
                   <Switch 
                     id="packageInstantBooking" 
                     checked={inputData.packageInstantBooking}                                       

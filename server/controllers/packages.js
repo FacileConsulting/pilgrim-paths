@@ -1,5 +1,7 @@
 const { constant } = require('../constant');
 const { 
+  getSettings,
+  updateSettings,
   getDashboard,
   updateDashboard,
   createPackage,
@@ -10,6 +12,21 @@ const {
   saveInDB
 } = require('../mongo');
 
+const apiChecker = async () => {
+  const settings = await getSettings({ _id: '689d5ad061d5569a4efe288f' });
+  if (!settings.publicAPIAccess) {
+    return { stat: 403, message: "Forbidden" };
+  }
+  if (settings.apiRateCounter <= settings.apiRateLimit) {
+    await updateSettings('689d5ad061d5569a4efe288f', {      
+      apiRateCounter: settings.apiRateCounter + 1
+    });
+    return { stat: undefined };
+  } else {
+    return { stat: 429, message: "Rate limit exceeded" }; 
+  }
+}
+
 exports.packages = async (req, res) => {
   const { 
     c200, 
@@ -19,17 +36,32 @@ exports.packages = async (req, res) => {
     packages, 
   } = constant();
   try {
+    const { stat, message } = await apiChecker();
+    if (stat) {
+      return res.status(stat).json({ error: message });
+    }
     console.log('req.body', req.body);
     const type = req.body.type;
     const { packageId } = req.body;
     packageId ? delete req.body.packageId : null; 
     delete req.body.type;
+
+    const settingsChange = async () => {
+      const settings = await getSettings({ _id: '689d5ad061d5569a4efe288f' });
+      console.log('dfdfdfssd', settings);
+      if (settings.packageNotification) {
+        await updateSettings('689d5ad061d5569a4efe288f', {      
+          notificationCounter: settings.notificationCounter + 1
+        });
+      }
+    }
+
     if (type === packages.create) {
       const packageData = await createPackage({
         ...req.body
       });
       const dashboard = await getDashboard({ _id: '6899669c88070a0970315bcc' });
-      const result = await updateDashboard('6899669c88070a0970315bcc', {      
+      await updateDashboard('6899669c88070a0970315bcc', {      
         activity: [
           {
             time: new Date(),
@@ -40,6 +72,7 @@ exports.packages = async (req, res) => {
           }, 
           ...dashboard.activity]
       });
+      await settingsChange();
       await saveInDB(packageData);
       res.status(c200).send({ ...packages.created });
     } else if (type === packages.fetchAll) {
@@ -74,6 +107,7 @@ exports.packages = async (req, res) => {
             }, 
             ...dashboard.activity]
         });
+        await settingsChange();
         return res.status(c200).send({ ...packages.deleted });
       } else {
         return res.status(c200).send({ ...packages.notFound });
@@ -96,6 +130,7 @@ exports.packages = async (req, res) => {
             }, 
             ...dashboard.activity]
         });
+        await settingsChange();
         return res.status(c200).send({ ...packages.updated });
       } else if (result.nModified === 0) {
         return res.status(c200).send({ ...packages.notUpdated });

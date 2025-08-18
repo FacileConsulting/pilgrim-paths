@@ -3,6 +3,16 @@ const Provider = require('./models/providers');
 const Package = require('./models/packages');
 const Inquiry = require('./models/inquiries');
 const Dashboard = require('./models/dashboard');
+const Setting = require('./models/settings');
+
+
+const getSettings = async (query) => {
+  return await Setting.findOne(query);
+}
+
+const updateSettings = async (query, data) => {
+  return await Setting.updateOne({ _id: new ObjectId(query) }, { $set: data } );
+}
 
 const createDashboard = (query) => {
   return new Dashboard(query);
@@ -69,6 +79,8 @@ const saveInDB = async (data) => {
 }
 
 module.exports = {
+  getSettings,
+  updateSettings,
   createDashboard,
   getDashboard,
   updateDashboard,
