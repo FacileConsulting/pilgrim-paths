@@ -20,7 +20,7 @@ import {
   Eye,
   Copy
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -104,8 +104,11 @@ const Packages = () => {
     packageRoomTypeOptions,
     packageTypeOptions,
     packageCurrencyOptions,
-    packageCategoryOptions
+    packageCategoryOptions,
+    packageDepartureOptions
   } = CREATE_PACKAGE;
+
+  const location = useLocation();
 
   const [packagesData, setPackagesData] = useState([]);
   const [packageChange, setPackageChange] = useState("");
@@ -129,6 +132,12 @@ const Packages = () => {
     const obj = packageCategoryOptions.find((option) => option.value === status);
     return obj?.label || "";
   };
+
+  const getDeparture = (status: string) => {
+    const obj = packageDepartureOptions.find((option) => option.value === status);
+    return obj?.label || "";
+  };
+
 
   const fetchPackages = async () => {
     try {
@@ -234,7 +243,12 @@ const Packages = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search packages..." className="pl-10" onChange={(e) => setPackageChange(e.target.value)} />
+                <Input 
+                  placeholder="Search packages..." 
+                  className="pl-10" 
+                  onChange={(e) => setPackageChange(e.target.value)} 
+                  value={packageChange}
+                />
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="default">
@@ -305,7 +319,7 @@ const Packages = () => {
                       <p className="text-sm font-medium">{pkg.packageProvider}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={pkg.packageType === "both" ? "primary" : "secondary"}>
+                      <Badge variant={pkg.packageType === "hajj umrah" ? "primary" : "secondary"}>
                         {getType(pkg.packageType).toUpperCase()}
                       </Badge>
                     </TableCell>
@@ -412,11 +426,16 @@ const Packages = () => {
                                 <label className="text-sm font-medium">Tags</label>
                                 <p className="text-sm text-muted-foreground">{pkg.packageTags}</p>
                               </div>
+                              <div>
+                                <label className="text-sm font-medium">Package Category</label>
+                                <p className="text-sm text-muted-foreground">{getCategory(pkg.packageCategory)}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Package Departure</label>
+                                <p className="text-sm text-muted-foreground">{getDeparture(pkg.packageDeparture)}</p>
+                              </div>
                             </div>
-                            <div>
-                              <label className="text-sm font-medium">Package Category</label>
-                              <p className="text-sm text-muted-foreground">{getCategory(pkg.packageCategory)}</p>
-                            </div>
+                            
                             <div>
                               <label className="text-sm font-medium">Package Description</label>
                               <p className="text-sm text-muted-foreground">{pkg.packageDescription}</p>

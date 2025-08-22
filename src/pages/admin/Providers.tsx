@@ -19,7 +19,7 @@ import {
   Trash2,
   Eye
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -90,6 +90,8 @@ const Providers = () => {
     providerVerificationStatusOptions,
     providerServicesOptions
   } = ADD_NEW_PROVIDER;
+
+  const navigate = useNavigate();
 
   const [providersData, setProvidersData] = useState([]);
   const [providerChange, setProviderChange] = useState("");
@@ -168,6 +170,12 @@ const Providers = () => {
       provider.providerName.toLowerCase().includes(providerChange.toLowerCase())
     );
   }, [providerChange, providersData]);
+
+  const handleViewPackages = (providerName: string) => {
+    navigate("/admin/packages", {
+      state: { search: providerName }
+    });
+  }
 
   useEffect(() => {
     fetchProviders();
@@ -356,7 +364,7 @@ const Providers = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewPackages(provider.providerName)}>
                     View Packages
                   </Button>
                   <Button variant="default" size="sm" className="flex-1">

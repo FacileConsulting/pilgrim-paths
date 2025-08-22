@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const packagesSchema = new mongoose.Schema({
+  providerId: {
+    type: String,
+    required: true
+  },
   isDraft: {
     type: Boolean,
     required: true
@@ -18,6 +22,14 @@ const packagesSchema = new mongoose.Schema({
     required: true
   },
   packageCategory: {
+    type: String,
+    required: true
+  },
+  packageImage: {
+    type: String,
+    required: false
+  },
+  packageDeparture: {
     type: String,
     required: true
   },

@@ -34,7 +34,7 @@ export const ADD_NEW_PROVIDER = {
   providerServicesOptions: [
     { label: "Hajj Packages", value: "hajj" },
     { label: "Umrah Packages", value: "umrah" },
-    { label: "Both Hajj & Umrah", value: "both" },
+    { label: "Both Hajj & Umrah", value: "hajj umrah" },
   ], 
   providerVerificationStatusOptions: [
     { label: "Pending", value: "pending" },
@@ -69,7 +69,7 @@ export const CREATE_PACKAGE = {
   packageTypeOptions: [
     { label: "Hajj", value: "hajj" },
     { label: "Umrah", value: "umrah" },
-    { label: "Hajj & Umrah", value: "both" },
+    { label: "Hajj & Umrah", value: "hajj umrah" },
   ], 
   packageCurrencyOptions: [
     { label: "INR", value: "inr" }
@@ -80,6 +80,16 @@ export const CREATE_PACKAGE = {
     { label: "Deluxe", value: "deluxe" },
     { label: "Premium", value: "premium" },
     { label: "Luxury", value: "luxury" },
+  ], 
+  packageDepartureOptions: [
+    { label: "Bengaluru", value: "bengaluru" },
+    { label: "Ahmedabad", value: "ahmedabad" },
+    { label: "Pune", value: "pune" },
+    { label: "Mumbai", value: "mumbai" },
+    { label: "Chennai", value: "chennai" },
+    { label: "Kolkata", value: "kolkata" },
+    { label: "Delhi", value: "delhi" },
+    { label: "Indore", value: "indore" },
   ], 
 };
 

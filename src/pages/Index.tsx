@@ -31,7 +31,7 @@ const Index = () => {
               <p className="text-muted-foreground mb-4">
                 Access the admin panel to manage providers, packages, and view analytics
               </p>
-              <Link to="/admin">
+              <Link to="/admin/dashboard">
                 <Button className="w-full bg-primary hover:bg-primary-hover">
                   Go to Dashboard
                 </Button>

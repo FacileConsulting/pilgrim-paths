@@ -37,6 +37,10 @@ const inquiriesSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  inquiryDeparture: {
+    type: String,
+    required: true
+  },
   inquiryMessage: {
     type: String,
     required: true
@@ -55,7 +59,8 @@ const inquiriesSchema = new mongoose.Schema({
   },
   inquiryStatus: {
     type: String,
-    required: true
+    required: true,
+    default: 'Pending'
   },
 });
 

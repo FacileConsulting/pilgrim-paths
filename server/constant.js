@@ -110,8 +110,14 @@ const constant = () => {
       }
     },
     inquiries: {
+      create: 'INQUIRY_CREATE',
       update: 'INQUIRY_UPDATE',
       fetchAll: 'INQUIRY_FETCH_ALL',
+      created: {
+        message: 'Inquiry created successfully',
+        created: true,
+        status: yS
+      },
       noInquiry: {
         message: 'Inquiry does not exit. Contact Admin',
         noInquiry: true,

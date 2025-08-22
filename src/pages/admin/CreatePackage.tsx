@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Package, Save, Calendar, MapPin, DollarSign, Plane } from "lucide-react";
+import { ArrowLeft, Package, Save, Calendar, MapPin, DollarSign, Plane, IndianRupee } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // File imports
@@ -23,6 +23,7 @@ const CreatePackage = () => {
     packageTypeOptions,
     packageRoomTypeOptions,
     packageCategoryOptions,
+    packageDepartureOptions,
     packageCurrencyOptions
     } = CREATE_PACKAGE;
   const { 
@@ -48,6 +49,7 @@ const CreatePackage = () => {
 
   type PackageType = typeof packageTypeOptions[number]["value"]; 
   type PackageRoomType = typeof packageRoomTypeOptions[number]["value"];
+  type PackageDeparture = typeof packageDepartureOptions[number]["value"];
   type PackageCategory = typeof packageCategoryOptions[number]["value"];
   type PackageCurrency = typeof packageCurrencyOptions[number]["value"];
 
@@ -55,6 +57,7 @@ const CreatePackage = () => {
   const [packageRoomType, setPackageRoomType] = useState<PackageRoomType>("single");
   const [packageCategory, setPackageCategory] = useState<PackageCategory>("economy");
   const [packageCurrency, setPackageCurrency] = useState<PackageCurrency>("inr");
+  const [packageDeparture, setPackageDeparture] = useState<PackageDeparture>("bengaluru");
   const [providers, setProviders] = useState<any>([]);
   const [packageProvider, setPackageProvider] = useState("");
   const [inputData, setInputData] = useState<any>({
@@ -77,6 +80,7 @@ const CreatePackage = () => {
     packageActive: true,
     packageInstantBooking: false,
     packageTags: "",
+    packageImage: "",
   });
 
   const handleInput = (
@@ -107,12 +111,30 @@ const CreatePackage = () => {
       packageActive: true,
       packageInstantBooking: false,
       packageTags: "",
+      packageImage: "",
     });
     setPackageType("hajj");
     setPackageProvider("");
     setPackageRoomType("single");
     setPackageCategory("economy");
     setPackageCurrency("inr");
+  };
+
+  // Convert File to Base64
+  const toBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file); // encodes as base64
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const base64 = await toBase64(file);
+      setInputData((prev) => ({ ...prev, packageImage: base64 }));
+    }
   };
 
   const validation = () => {
@@ -187,11 +209,13 @@ const CreatePackage = () => {
     const payload: any = {
       type: packageId ? "PACKAGE_UPDATE" : "PACKAGE_CREATE",
       packageId: packageId || undefined,
+      providerId: providers.find((provider: any) => provider.value === packageProvider).providerId,
       isDraft,
       packageType,
       packageProvider,
       packageRoomType,
       packageCategory,
+      packageDeparture,
       packageCurrency,
       ...inputData
     };
@@ -228,8 +252,7 @@ const CreatePackage = () => {
       const data = await response.json();
 
       if (response.ok && data.status === "success" && data.data.length > 0) {
-        const filtered = data.data.map((provider: any) => provider.providerName);
-        const providersOptions = filtered.map((provider: any) => ({ label: provider, value: provider }));
+        const providersOptions = data.data.map((provider: any) => ({ providerId: provider._id, value: provider.providerName, label: provider.providerName }));
         setProviders(providersOptions);
       } else {
         toast({ title: data.message || "Something went wrong!" });
@@ -255,11 +278,13 @@ const CreatePackage = () => {
         setPackageProvider(data.data.packageProvider);
         setPackageRoomType(data.data.packageRoomType);
         setPackageCategory(data.data.packageCategory);
+        setPackageDeparture(data.data.packageDeparture);
         setPackageCurrency(data.data.packageCurrency);
         delete data.data.packageType;
         delete data.data.packageProvider;
         delete data.data.packageRoomType;
         delete data.data.packageCategory;
+        delete data.data.packageDeparture;
         delete data.data.packageCurrency;
         
         delete data.data.isDraft;
@@ -347,7 +372,7 @@ const CreatePackage = () => {
                       <SelectContent>
                         {
                           providers.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
+                            <SelectItem key={option.providerId} value={option.value}>
                               {option.label}
                             </SelectItem>
                           ))
@@ -407,16 +432,36 @@ const CreatePackage = () => {
                     {/* <Input id="end-date" type="date" /> */}
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="packageDepartureDescription">Departure Information</Label>                  
-                  <Textarea 
-                    id="packageDepartureDescription" 
-                    placeholder={departureDescription} 
-                    value={inputData.packageDepartureDescription}
-                    onInput={handleInput}
-                    rows={2}
-                  />
+                
+                
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="packageDeparture">Departure *</Label>                    
+                    <Select value={packageDeparture} onValueChange={(val) => setPackageDeparture(val as any)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select departure" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {
+                          packageDepartureOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="packageDepartureDescription">Departure Information</Label>                  
+                    <Textarea 
+                      id="packageDepartureDescription" 
+                      placeholder={departureDescription} 
+                      value={inputData.packageDepartureDescription}
+                      onInput={handleInput}
+                      rows={2}
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -438,7 +483,7 @@ const CreatePackage = () => {
                     onInput={handleInput} />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="packageMakkahHotel">Makkah Hotel</Label>                    
                     <Input 
@@ -454,6 +499,21 @@ const CreatePackage = () => {
                       placeholder={madinahHotel} 
                       value={inputData.packageMadinahHotel}
                       onInput={handleInput} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="packageMadinahHotel">good Hotel</Label>                   
+                    <Input 
+                      type="file"
+                      accept="image/*"
+                      id="packageImage" 
+                      onChange={handleFileChange}
+                      className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-0.5 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-default/20 file:text-success
+                        hover:file:bg-primary/30"
+                      />
                   </div>
                 </div>
 
@@ -480,7 +540,7 @@ const CreatePackage = () => {
             <Card className="shadow-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
+                  <IndianRupee className="h-5 w-5" />
                   Pricing & Capacity
                 </CardTitle>
               </CardHeader>

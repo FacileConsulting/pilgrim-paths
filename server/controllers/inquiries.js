@@ -4,6 +4,7 @@ const {
   updateSettings,
   getDashboard,
   updateDashboard,
+  createInquiry,
   getAllInquiries,
   updateInquiry,
   saveInDB
@@ -81,8 +82,13 @@ exports.inquiries = async (req, res) => {
       } else {
         return res.status(c200).send({ ...inquiries.notFound });
       }
+    } else if (type === inquiries.create) {
+      const inquiryData = await createInquiry({
+        ...req.body
+      });
+      await saveInDB(inquiryData);
+      res.status(c200).send({ ...inquiries.created });
     }
-
   } catch (error) {
     console.error(error);
     return res.status(c500).send({ ...inquiries.error });

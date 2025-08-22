@@ -9,7 +9,9 @@ const {
   deletePackage,
   updatePackage,
   getPackage,
-  saveInDB
+  saveInDB,
+  getAllProviders,
+  updateProvider
 } = require('../mongo');
 
 const apiChecker = async () => {
@@ -78,10 +80,36 @@ exports.packages = async (req, res) => {
     } else if (type === packages.fetchAll) {
       const query = {};
       const packagesAllData = await getAllPackages(query);
-      console.log('req.body', packages.fetchAll);
+
       if (!packagesAllData || packagesAllData.length == 0) {
         res.status(c200).send({ ...packages.failed });
       } else {
+        // To count packages as per each provider
+        const grouped = Object.values(
+          packagesAllData.reduce((acc, obj) => {
+            const key = obj.packageProvider;
+            if (!acc[key]) {
+              acc[key] = { provider: key, length: 0 };
+            }
+            acc[key].length += 1;
+            return acc;
+          }, {})
+        );
+
+        const providersAllData = await getAllProviders(query);
+        await Promise.all(
+          grouped.map(async (group) => {
+            const providerMatch = providersAllData.find(
+              (item) => item.providerName === group.provider
+            );
+            if (providerMatch) {
+              await updateProvider(providerMatch._id, {
+                providerPackages: group.length,
+              });
+            }
+          })
+        );
+
         const result = await updateDashboard('6899669c88070a0970315bcc', {      
           activePackagesCurrMonth: packagesAllData.filter(item => item.packageActive === true).length
         });

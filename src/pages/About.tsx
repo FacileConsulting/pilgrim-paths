@@ -69,7 +69,7 @@ const About = () => {
               <Link to="/team" className="text-muted-foreground hover:text-primary">Team</Link>
               <Link to="/contact" className="text-muted-foreground hover:text-primary">Contact</Link>
               <Link to="/support" className="text-muted-foreground hover:text-primary">Support</Link>
-              <Link to="/admin">
+              <Link to="/admin/providers/add">
                 <Button variant="outline" size="sm">Admin Portal</Button>
               </Link>
             </nav>

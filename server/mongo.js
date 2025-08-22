@@ -26,6 +26,10 @@ const updateDashboard = async (query, data) => {
   return await Dashboard.updateOne({ _id: new ObjectId(query) }, { $set: data } );
 }
 
+const createInquiry = (query) => {
+  return new Inquiry(query);
+}
+
 const getAllInquiries = async (query) => {
   return await Inquiry.find(query);
 }
@@ -84,6 +88,7 @@ module.exports = {
   createDashboard,
   getDashboard,
   updateDashboard,
+  createInquiry,
   getAllInquiries,
   updateInquiry,
   getAllPackages,

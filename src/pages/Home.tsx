@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ContactModal } from "@/components/ContactModal";
+import { toast } from "@/hooks/use-toast";
+
+// File imports
+import { CREATE_PACKAGE } from "@/lib/constant";
 
 const featuredPackages = [
   {
@@ -36,7 +40,7 @@ const featuredPackages = [
     duration: 14,
     rating: 4.8,
     reviews: 156,
-    image: "/api/placeholder/400/200",
+    image: "/good.svg",
     features: ["5-star hotels", "VIP transport", "Guided tours"],
     location: "Makkah & Madinah",
     description: "Experience the spiritual journey of a lifetime with our carefully curated deluxe package including luxury accommodation, VIP transportation, and expert guided tours.",
@@ -84,36 +88,137 @@ const featuredPackages = [
   }
 ];
 
-const providerDetails = {
-  name: "Al-Haramain Travel",
-  email: "info@alharamain.com",
-  phone: "+1-800-555-0123",
-  website: "www.alharamain.com",
-  address: "123 Islamic Center Blvd, New York, NY 10001",
-  description: "Leading Hajj and Umrah travel specialist with over 20 years of experience serving pilgrims worldwide.",
-  rating: 4.8,
-  totalPackages: 45,
-  yearsInBusiness: 20
-};
+// const providerDetails = {
+//   name: "Al-Haramain Travel",
+//   email: "info@alharamain.com",
+//   phone: "+1-800-555-0123",
+//   website: "www.alharamain.com",
+//   address: "123 Islamic Center Blvd, New York, NY 10001",
+//   description: "Leading Hajj and Umrah travel specialist with over 20 years of experience serving pilgrims worldwide.",
+//   rating: 4.8,
+//   totalPackages: 45,
+//   yearsInBusiness: 20
+// };
 
 const Home = () => {
+  
+  // Constants
+  const { 
+    packageDepartureOptions
+  } = CREATE_PACKAGE;
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [showResults, setShowResults] = useState(false);
+  const [providerDetails, setProviderDetails] = useState({});
+  const [displayPackages, setDisplayPackages] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [packagesData, setPackagesData] = useState([]);
+  const [featuredPackagesData, setFeaturedPackagesData] = useState([]);
+  const [packageChange, setPackageChange] = useState("");
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      setShowResults(true);
+  const fetchProvider = async (providerId) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/providers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "PROVIDER_FETCH", providerId })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success") {
+        setProviderDetails(data.data);
+      } else {
+        toast({ title: data.message || "Something went wrong!" });
+      }
+    } catch (error) {
+      console.error("Error provider save data:", error);
+      toast({ title: "Something went wrong!" });
     }
   };
 
-  const handleContactClick = (packageData) => {
+  const validation = () => {
+    let isValid = true;
+
+    const hasLocation = !!selectedLocation;
+    const hasSearch = packageChange && packageChange.trim().length >= 3;
+
+    if (!hasLocation && !hasSearch) {
+      toast({ title: "Please select a location or enter at least 3 characters to search" });
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  const fetchPackages = async (isFeatured: Boolean = false) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "PACKAGE_FETCH_ALL" })     
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success" && data.data.length > 0) {
+        !isFeatured && setDisplayPackages(true);
+        isFeatured ? setFeaturedPackagesData(data.data) : setPackagesData(data.data);
+      } else {
+        toast({ title: data.message || "Something went wrong!" });
+      }
+    } catch (error) {
+      console.error("Error package save data:", error);
+      toast({ title: "Something went wrong!" });
+    }
+  }
+
+
+  const handleSearchPackages = async (isFeatured: Boolean = false) => {
+    if (!validation()) return;
+    fetchPackages(isFeatured);
+  }
+
+  const filteredPackagesData = useMemo(() => {
+
+    const search = packageChange.toLowerCase();
+    const location = selectedLocation?.toLowerCase();
+    const isAutoDetect = location === "auto" || !location;
+
+    return packagesData.filter((pkg) => {
+      const matchesSearch =
+        pkg.packageTitle.toLowerCase().includes(search) ||
+        pkg.packageType.toLowerCase().includes(search) ||
+        pkg.packageProvider.toLowerCase().includes(search);
+      
+      const matchesLocation = location && pkg.packageDeparture.toLowerCase().includes(location);
+
+      if (isAutoDetect) {
+        // Only search filter
+        return matchesSearch;
+      }
+
+      if (!search && location) {
+        // Case 2: Only location selected (no valid search input)
+        return matchesLocation;
+      }
+
+      // Case 3: Both search + location
+      return matchesSearch && matchesLocation;
+    });
+  }, [packageChange, selectedLocation, packagesData]);
+
+  const handleContactClick = async (packageData) => {
+    await fetchProvider(packageData.providerId);
     setSelectedPackage(packageData);
     setShowContactModal(true);
   };
+
+  useEffect(() => {
+    fetchPackages(true);
+  }, []);
 
   const popularSearches = [
     "Hajj packages 2024",
@@ -147,7 +252,7 @@ const Home = () => {
               <Link to="/team" className="text-muted-foreground hover:text-primary">Team</Link>
               <Link to="/contact" className="text-muted-foreground hover:text-primary">Contact</Link>
               <Link to="/support" className="text-muted-foreground hover:text-primary">Support</Link>
-              <Link to="/admin">
+              <Link to="/admin/providers/add">
                 <Button variant="outline" size="sm">Admin Portal</Button>
               </Link>
             </nav>
@@ -201,28 +306,31 @@ const Home = () => {
                   <Input
                     placeholder="Search for Hajj packages, Umrah tours, or provider names..."
                     className="pl-12 h-14 text-lg border-0 focus-visible:ring-0"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    onChange={(e) => setPackageChange(e.target.value)} 
+                    value={packageChange}
                   />
                 </div>
+
+
                 <div className="flex gap-2">
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                  <Select value={selectedLocation} onValueChange={(val) => setSelectedLocation(val as any)}>
                     <SelectTrigger className="w-48 h-14 border-0">
                       <MapPin className="h-4 w-4 mr-2" />
                       <SelectValue placeholder="Your location" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="auto">📍 Auto-detect</SelectItem>
-                      <SelectItem value="new-york">New York, USA</SelectItem>
-                      <SelectItem value="london">London, UK</SelectItem>
-                      <SelectItem value="toronto">Toronto, Canada</SelectItem>
-                      <SelectItem value="sydney">Sydney, Australia</SelectItem>
-                      <SelectItem value="dubai">Dubai, UAE</SelectItem>
+                      {
+                        packageDepartureOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                   <Button 
-                    onClick={handleSearch}
+                    onClick={()=> handleSearchPackages()}
                     className="h-14 px-8 bg-primary hover:bg-primary/90"
                   >
                     <Search className="h-5 w-5" />
@@ -232,7 +340,7 @@ const Home = () => {
             </Card>
 
             {/* Popular Searches */}
-            <div className="text-center">
+            {/* <div className="text-center">
               <p className="text-sm text-muted-foreground mb-3">Popular searches:</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {popularSearches.map((search, index) => (
@@ -250,10 +358,29 @@ const Home = () => {
                   </Button>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
+
+      {
+        displayPackages && (
+          <div className="container mx-auto px-4 py-16 bg-secondary/30">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-foreground mb-4">Seached Packages</h2>
+              <p className="text-muted-foreground">Search results from our trusted partners</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+              {filteredPackagesData.map((pkg) => (
+                <PackageCard key={pkg._id} package={pkg} onContactClick={handleContactClick} />
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      
 
       {/* Featured Packages */}
       <div className="container mx-auto px-4 py-16 bg-secondary/30">
@@ -263,8 +390,8 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {featuredPackages.map((pkg) => (
-            <PackageCard key={pkg.id} package={pkg} onContactClick={handleContactClick} />
+          {featuredPackagesData.map((pkg) => (
+            pkg.packageFeatured && <PackageCard key={pkg._id} package={pkg} onContactClick={handleContactClick} />
           ))}
         </div>
       </div>
@@ -365,45 +492,56 @@ const Home = () => {
 const PackageCard = ({ package: pkg, onContactClick }) => {
   return (
     <Card className="shadow-card hover:shadow-elevated transition-all duration-300 group">
+
       <div className="relative overflow-hidden rounded-t-lg">
         <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Package Image</p>
-          </div>
+          {pkg.packageImage ? (
+            <img
+              src={pkg.packageImage} 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-center text-muted-foreground">
+              <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Package Image</p>
+            </div>
+          )}
         </div>
+
         <Badge className="absolute top-3 right-3 bg-accent text-accent-foreground">
-          {pkg.duration} days
+          {pkg.packageDuration} days
         </Badge>
       </div>
+
+      
       
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-3">
           <div>
             <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-              {pkg.title}
+              {pkg.packageTitle}
             </h3>
-            <p className="text-sm text-muted-foreground">{pkg.provider}</p>
+            <p className="text-sm text-muted-foreground">{pkg.packageProvider}</p>
           </div>
           <div className="text-right">
             <div className="text-sm text-muted-foreground">from</div>
-            <div className="text-lg font-bold text-foreground">${pkg.price.from.toLocaleString()}</div>
+            <div className="text-lg font-bold text-foreground">{pkg.packageCurrency === 'inr' ? '₹' : '$'}{pkg.packagePriceFrom}</div>
           </div>
         </div>
 
         <div className="flex items-center gap-1 mb-3">
           <Star className="h-4 w-4 fill-accent text-accent" />
-          <span className="text-sm font-medium">{pkg.rating}</span>
-          <span className="text-sm text-muted-foreground">({pkg.reviews} reviews)</span>
+          <span className="text-sm font-medium">{pkg.rating || 0}</span>
+          <span className="text-sm text-muted-foreground">({pkg.reviews || 0} reviews)</span>
         </div>
 
         <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
           <MapPin className="h-3 w-3" />
-          {pkg.location}
+          {pkg.packageLocations}
         </div>
 
         <div className="space-y-2 mb-4">
-          {pkg.features.map((feature, index) => (
+          {pkg.packageInclusions &&pkg.packageInclusions.split(',').map((feature, index) => (
             <div key={index} className="flex items-center gap-2 text-sm">
               <div className="w-1 h-1 bg-primary rounded-full" />
               {feature}
@@ -523,7 +661,7 @@ const SearchResultCard = ({ package: pkg, onContactClick }) => {
             </p>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              {pkg.features.map((feature, index) => (
+              {pkg.packageInclusions && pkg.packageInclusions.split(',').map((feature, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
                   {feature}
                 </Badge>

@@ -132,7 +132,7 @@ const Contact = () => {
               <Link to="/team" className="text-muted-foreground hover:text-primary">Team</Link>
               <Link to="/contact" className="text-foreground hover:text-primary font-medium">Contact</Link>
               <Link to="/support" className="text-muted-foreground hover:text-primary">Support</Link>
-              <Link to="/admin">
+              <Link to="/admin/providers/add">
                 <Button variant="outline" size="sm">Admin Portal</Button>
               </Link>
             </nav>

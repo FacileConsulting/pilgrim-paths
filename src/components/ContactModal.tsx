@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 import { 
   X, 
   Phone, 
@@ -61,7 +63,7 @@ interface ContactModalProps {
   };
 }
 
-export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }: ContactModalProps) => {
+export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }) => {
   const [activeTab, setActiveTab] = useState<'contact' | 'inquiry'>('contact');
   const [formData, setFormData] = useState({
     name: '',
@@ -72,8 +74,73 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validation = ({ name, email, phone, message }) => {
+      let isValid = true;
+  
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneRegex = /^\d{10}$/;
+  
+      if (!message) {
+        toast({ title: 'Please enter message' });
+        isValid = false;
+      }
+  
+      if (!phone || !phoneRegex.test(phone)) {
+        toast({ title: 'Please enter a valid phone number' });
+        isValid = false;
+      }
+  
+      if (!email || !emailRegex.test(email)) {
+        toast({ title: 'Please enter a valid email' });
+        isValid = false;
+      }
+  
+      if (!name) {
+        toast({ title: 'Please enter your name' });
+        isValid = false;
+      }
+      return isValid;
+    }
+
+  const handleSendInquiry = async(e: React.FormEvent) => {
     e.preventDefault();
+    if (!validation(formData)) return;
+    const payload: any = {
+      type: "INQUIRY_CREATE",
+      inquiryName: formData.name,
+      inquiryEmail: formData.email,
+      inquiryPhone: formData.phone,
+      inquiryTravelersNumber: formData.travelers,
+      inquiryDate: formData.preferredDate,
+      inquiryMessage: formData.message,
+      inquiryPackage: pkg.packageTitle,
+      inquiryProvider: providerDetails.providerName,
+      inquiryStartDate: pkg.packageStartDate,
+      inquiryEndDate: pkg.packageEndDate,
+      inquiryDeparture: pkg.packageDeparture,
+      inquiryRatingProvider: providerDetails.providerRating,
+      inquiryNumber: format(new Date(), "yyMMddHHmmss")
+    };
+    try {
+      const response = await fetch("http://localhost:8000/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({ title: data.message });
+        // handleCancel();
+        onClose();
+      } else {
+        toast({ title: data.message || "Something went wrong!" });
+      }
+    } catch (error) {
+      console.error("Error provider save data:", error);
+      toast({ title: "Something went wrong!" });
+    }
     // Handle form submission
     console.log('Form submitted:', formData);
     onClose();
@@ -90,7 +157,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
             </Button>
           </DialogTitle>
           <DialogDescription>
-            Get in touch with {providerDetails.name} about "{pkg.title}"
+            Get in touch with {providerDetails.providerName} about "{pkg.packageTitle}"
           </DialogDescription>
         </DialogHeader>
 
@@ -99,24 +166,31 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
           <div className="lg:col-span-1">
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle className="text-lg">{pkg.title}</CardTitle>
+                <CardTitle className="text-lg">{pkg.packageTitle}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Duration</span>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    <span className="text-sm font-medium">{pkg.duration} days</span>
+                    <span className="text-sm font-medium">{pkg.packageDuration} days</span>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Price Range</span>
                   <div className="flex items-center gap-1">
-                    <DollarSign className="h-3 w-3" />
                     <span className="text-sm font-medium">
-                      ${pkg.price.from.toLocaleString()} - ${pkg.price.to.toLocaleString()}
+                      ₹{pkg.packagePriceFrom} - ₹{pkg.packagePriceTo}
                     </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Departure</span>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    <span className="text-sm font-medium">{pkg.packageDeparture.charAt(0).toUpperCase() + pkg.packageDeparture.slice(1)}</span>
                   </div>
                 </div>
 
@@ -124,7 +198,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                   <span className="text-sm text-muted-foreground">Location</span>
                   <div className="flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
-                    <span className="text-sm font-medium">{pkg.location}</span>
+                    <span className="text-sm font-medium">{pkg.packageLocations}</span>
                   </div>
                 </div>
 
@@ -132,13 +206,13 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                   <span className="text-sm text-muted-foreground">Rating</span>
                   <div className="flex items-center gap-1">
                     <Star className="h-3 w-3 fill-accent text-accent" />
-                    <span className="text-sm font-medium">{pkg.rating} ({pkg.reviews} reviews)</span>
+                    <span className="text-sm font-medium">{pkg.rating || 0} ({pkg.reviews || 0} reviews)</span>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <span className="text-sm text-muted-foreground">Includes:</span>
-                  {pkg.features.map((feature, index) => (
+                  {pkg.packageInclusions && pkg.packageInclusions.split(',').map((feature, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm">
                       <div className="w-1 h-1 bg-primary rounded-full" />
                       {feature}
@@ -182,18 +256,18 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                       <div className="p-2 bg-primary/10 rounded-lg">
                         <Phone className="h-5 w-5 text-primary" />
                       </div>
-                      {providerDetails.name}
+                      {providerDetails.providerName}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-muted-foreground">{providerDetails.description}</p>
+                    <p className="text-muted-foreground">{providerDetails.providerDescription}</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
                           <Phone className="h-4 w-4 text-muted-foreground" />
                           <div>
-                            <p className="text-sm font-medium">{providerDetails.phone}</p>
+                            <p className="text-sm font-medium">{providerDetails.providerPhone}</p>
                             <p className="text-xs text-muted-foreground">Primary contact</p>
                           </div>
                         </div>
@@ -201,7 +275,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                         <div className="flex items-center gap-3">
                           <Mail className="h-4 w-4 text-muted-foreground" />
                           <div>
-                            <p className="text-sm font-medium">{providerDetails.email}</p>
+                            <p className="text-sm font-medium">{providerDetails.providerEmail}</p>
                             <p className="text-xs text-muted-foreground">Email support</p>
                           </div>
                         </div>
@@ -209,7 +283,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                         <div className="flex items-center gap-3">
                           <Globe className="h-4 w-4 text-muted-foreground" />
                           <div>
-                            <p className="text-sm font-medium">{providerDetails.website}</p>
+                            <p className="text-sm font-medium">{providerDetails.providerWebsite}</p>
                             <p className="text-xs text-muted-foreground">Official website</p>
                           </div>
                         </div>
@@ -219,7 +293,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                         <div className="flex items-center gap-3">
                           <MapPin className="h-4 w-4 text-muted-foreground" />
                           <div>
-                            <p className="text-sm font-medium">{providerDetails.address}</p>
+                            <p className="text-sm font-medium">{providerDetails.providerAddress}</p>
                             <p className="text-xs text-muted-foreground">Business address</p>
                           </div>
                         </div>
@@ -227,7 +301,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                         <div className="flex items-center gap-3">
                           <Star className="h-4 w-4 text-muted-foreground" />
                           <div>
-                            <p className="text-sm font-medium">{providerDetails.rating}/5.0 Rating</p>
+                            <p className="text-sm font-medium">{providerDetails.providerRating}/5.0 Rating</p>
                             <p className="text-xs text-muted-foreground">Customer satisfaction</p>
                           </div>
                         </div>
@@ -235,7 +309,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                         <div className="flex items-center gap-3">
                           <Clock className="h-4 w-4 text-muted-foreground" />
                           <div>
-                            <p className="text-sm font-medium">{providerDetails.yearsInBusiness}+ years</p>
+                            <p className="text-sm font-medium">Since {providerDetails.providerEstablished}</p>
                             <p className="text-xs text-muted-foreground">In business</p>
                           </div>
                         </div>
@@ -243,18 +317,21 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                     </div>
 
                     <div className="flex gap-3 pt-4">
-                      <Button className="flex-1 bg-primary hover:bg-primary-hover">
-                        <Phone className="h-4 w-4 mr-2" />
-                        Call Now
+                      <Button 
+                        className="flex-1 bg-primary hover:bg-primary-hover"
+                        onClick={() => setActiveTab('inquiry')}
+                      >
+                        <Send className="h-4 w-4 mr-2" />
+                        Send Inquiry
                       </Button>
-                      <Button variant="outline" className="flex-1">
+                      {/* <Button variant="outline" className="flex-1">
                         <Mail className="h-4 w-4 mr-2" />
                         Send Email
                       </Button>
                       <Button variant="outline" className="flex-1">
                         <Globe className="h-4 w-4 mr-2" />
                         Visit Website
-                      </Button>
+                      </Button> */}
                     </div>
                   </CardContent>
                 </Card>
@@ -267,11 +344,11 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails }:
                 <CardHeader>
                   <CardTitle>Send Inquiry</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Fill out the form below and we'll send your inquiry directly to {providerDetails.name}
+                    Fill out the form below and we'll send your inquiry directly to {providerDetails.providerName}
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSendInquiry} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full Name *</Label>
