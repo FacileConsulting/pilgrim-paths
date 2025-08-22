@@ -501,7 +501,7 @@ const CreatePackage = () => {
                       onInput={handleInput} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="packageMadinahHotel">good Hotel</Label>                   
+                    <Label htmlFor="packageMadinahHotel">Image</Label>                   
                     <Input 
                       type="file"
                       accept="image/*"
