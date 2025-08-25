@@ -64,8 +64,7 @@ const providersSchema = new mongoose.Schema({
   },
   providerRating: {
     type: String,
-    required: false,
-    default: 0
+    required: false
   }
 });
 

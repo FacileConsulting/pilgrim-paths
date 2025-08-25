@@ -40,7 +40,8 @@ const CreatePackage = () => {
     minimumBooking,
     inclusions,
     exclusions, 
-    tags
+    tags,
+    rating
   } = placeholder;
 
   const location = useLocation();
@@ -80,6 +81,7 @@ const CreatePackage = () => {
     packageActive: true,
     packageInstantBooking: false,
     packageTags: "",
+    packageRating: "",
     packageImage: "",
   });
 
@@ -111,6 +113,7 @@ const CreatePackage = () => {
       packageActive: true,
       packageInstantBooking: false,
       packageTags: "",
+      packageRating: "",
       packageImage: "",
     });
     setPackageType("hajj");
@@ -501,7 +504,7 @@ const CreatePackage = () => {
                       onInput={handleInput} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="packageMadinahHotel">Image</Label>                   
+                    <Label htmlFor="packageMadinahHotel">Upload Image</Label>                   
                     <Input 
                       type="file"
                       accept="image/*"
@@ -711,6 +714,15 @@ const CreatePackage = () => {
                       }
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="packageRating">Rating</Label>
+                  <Input 
+                    id="packageRating"
+                    placeholder={rating}
+                    value={inputData.packageRating}
+                    onInput={handleInput}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="tags">Tags</Label>                                      

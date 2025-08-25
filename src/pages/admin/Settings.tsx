@@ -246,8 +246,6 @@ const Settings = () => {
           fileStatus
         } = data;
 
-        debugger;
-
         setDatabaseStatus(databaseStatus);
         setEmailStatus(emailStatus);
         setFileStatus(fileStatus);

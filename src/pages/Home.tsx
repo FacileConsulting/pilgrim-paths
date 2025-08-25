@@ -531,7 +531,7 @@ const PackageCard = ({ package: pkg, onContactClick }) => {
 
         <div className="flex items-center gap-1 mb-3">
           <Star className="h-4 w-4 fill-accent text-accent" />
-          <span className="text-sm font-medium">{pkg.rating || 0}</span>
+          <span className="text-sm font-medium">{pkg.packageRating || 0}</span>
           <span className="text-sm text-muted-foreground">({pkg.reviews || 0} reviews)</span>
         </div>
 
@@ -541,13 +541,31 @@ const PackageCard = ({ package: pkg, onContactClick }) => {
         </div>
 
         <div className="space-y-2 mb-4">
-          {pkg.packageInclusions &&pkg.packageInclusions.split(',').map((feature, index) => (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div className="w-1 h-1 bg-primary rounded-full" />
-              {feature}
-            </div>
-          ))}
+          {pkg.packageInclusions &&
+            pkg.packageInclusions.split(",").map((feature, index) =>
+              index < 3 ? (
+                <div key={index} className="flex items-center gap-2 text-sm">
+                  <span className="w-1 h-1 bg-primary rounded-full" />
+                  {feature.trim()}
+                </div>
+              ) : null
+            )}
+          {/* Ensure at least 3 lines height */}
+          {pkg.packageInclusions && pkg.packageInclusions.split(",").length === 0 && <div className="min-h-[75px]" />}
+          {pkg.packageInclusions && pkg.packageInclusions.split(",").length === 2 && <div className="min-h-[20px]" />}
+          {pkg.packageInclusions && pkg.packageInclusions.split(",").length === 1 && <div className="min-h-[50px]" />}
         </div>
+
+        {/* <div className="space-y-2 mb-4">
+          {pkg.packageInclusions && pkg.packageInclusions.split(',').map((feature, index) => (
+            {index < 3 && (
+              <div key={index} className="flex items-center gap-2 text-sm">
+                <span className="w-1 h-1 bg-primary rounded-full" />
+                {feature}
+              </div>
+            )}
+          ))}
+        </div> */}
 
         <Button 
           className="w-full bg-primary hover:bg-primary/90"

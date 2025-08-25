@@ -109,6 +109,10 @@ const packagesSchema = new mongoose.Schema({
     type: Boolean,
     required: false
   }, 
+  packageRating: {
+    type: String,
+    required: false
+  },
   packageTags: {
     type: String,
     required: false

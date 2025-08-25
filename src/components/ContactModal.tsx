@@ -119,6 +119,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
       inquiryEndDate: pkg.packageEndDate,
       inquiryDeparture: pkg.packageDeparture,
       inquiryRatingProvider: providerDetails.providerRating,
+      inquiryRatingPackage: pkg.packageRating,
       inquiryNumber: format(new Date(), "yyMMddHHmmss")
     };
     try {
@@ -152,16 +153,13 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>Contact Provider</span>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
           </DialogTitle>
           <DialogDescription>
             Get in touch with {providerDetails.providerName} about "{pkg.packageTitle}"
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Package Summary */}
           <div className="lg:col-span-1">
             <Card className="shadow-card">
@@ -206,7 +204,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
                   <span className="text-sm text-muted-foreground">Rating</span>
                   <div className="flex items-center gap-1">
                     <Star className="h-3 w-3 fill-accent text-accent" />
-                    <span className="text-sm font-medium">{pkg.rating || 0} ({pkg.reviews || 0} reviews)</span>
+                    <span className="text-sm font-medium">{pkg.packageRating || 0} ({pkg.reviews || 0} reviews)</span>
                   </div>
                 </div>
 
@@ -348,7 +346,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSendInquiry} className="space-y-4">
+                  <form className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full Name *</Label>
@@ -356,7 +354,6 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
                           id="name"
                           value={formData.name}
                           onChange={(e) => setFormData({...formData, name: e.target.value})}
-                          required
                         />
                       </div>
                       <div className="space-y-2">
@@ -366,7 +363,6 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
                           type="email"
                           value={formData.email}
                           onChange={(e) => setFormData({...formData, email: e.target.value})}
-                          required
                         />
                       </div>
                     </div>
@@ -418,7 +414,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
                     </div>
 
                     <div className="flex gap-3 pt-4">
-                      <Button type="submit" className="flex-1 bg-primary hover:bg-primary-hover">
+                      <Button type="button" className="flex-1 bg-primary hover:bg-primary-hover" onClick={handleSendInquiry}>
                         <Send className="h-4 w-4 mr-2" />
                         Send Inquiry
                       </Button>

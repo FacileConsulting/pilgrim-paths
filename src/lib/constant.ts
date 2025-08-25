@@ -57,7 +57,8 @@ export const CREATE_PACKAGE = {
     capacity: "50",
     minimumBooking: "1",
     inclusions: "List all included services: flights, accommodation, meals, transport, guides, etc.",
-    exclusions: "List services not included: personal expenses, optional tours, etc.",
+    exclusions: "List services not included: personal expenses, optional tours, etc.",    
+    rating: "Ratings from 1 to 5",
     tags: "family-friendly, budget, luxury",
   }, 
   packageRoomTypeOptions: [
