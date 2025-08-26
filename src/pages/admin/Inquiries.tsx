@@ -90,7 +90,7 @@ const Inquiries = () => {
 
   const fetchInquiries = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/inquiries", {
+      const response = await fetch(`${BASE_URL}/api/inquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "INQUIRY_FETCH_ALL" })     
@@ -148,7 +148,7 @@ const Inquiries = () => {
     };
     
     try {
-      const response = await fetch("http://localhost:8000/api/inquiries", {
+      const response = await fetch(`${BASE_URL}/api/inquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload })
