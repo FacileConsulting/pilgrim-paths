@@ -12,7 +12,7 @@ import { ArrowLeft, Building2, Save } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // File imports
-import { ADD_NEW_PROVIDER } from "@/lib/constant";
+import { ADD_NEW_PROVIDER, BASE_URL } from "@/lib/constant";
 
 const AddProvider = () => {
 
@@ -145,7 +145,7 @@ const AddProvider = () => {
       ...inputData
     };
     try {
-      const response = await fetch("http://localhost:8000/api/providers", {
+      const response = await fetch(`${BASE_URL}/api/providers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload })
@@ -168,7 +168,7 @@ const AddProvider = () => {
 
   const fetchProvider = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/providers", {
+      const response = await fetch(`${BASE_URL}/api/providers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PROVIDER_FETCH", providerId })

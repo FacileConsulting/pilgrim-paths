@@ -29,6 +29,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { report } from 'process';
 
+// File imports
+import { BASE_URL } from "@/lib/constant";
+
 const Settings = () => {
 
   const [databaseStatus, setDatabaseStatus] = useState<String>('checking...');
@@ -65,7 +68,7 @@ const Settings = () => {
 
   const handleBackup = async (type: String) => {
     try {
-      const response = await fetch("http://localhost:8000/api/settings", {
+      const response = await fetch(`${BASE_URL}/api/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type })
@@ -149,7 +152,7 @@ const Settings = () => {
       ...inputData
     };
     try {
-      const response = await fetch("http://localhost:8000/api/settings", {
+      const response = await fetch(`${BASE_URL}/api/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload })
@@ -170,7 +173,7 @@ const Settings = () => {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/settings", {
+      const response = await fetch(`${BASE_URL}/api/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "SETTINGS_FETCH" })
@@ -231,7 +234,7 @@ const Settings = () => {
 
   const systemStatus = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/settings", {
+      const response = await fetch(`${BASE_URL}/api/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "SYSTEM_STATUS" })

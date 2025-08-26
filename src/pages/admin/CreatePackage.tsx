@@ -12,7 +12,7 @@ import { ArrowLeft, Package, Save, Calendar, MapPin, DollarSign, Plane, IndianRu
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // File imports
-import { CREATE_PACKAGE } from "@/lib/constant";
+import { CREATE_PACKAGE, BASE_URL } from "@/lib/constant";
 
 
 const CreatePackage = () => {
@@ -223,7 +223,7 @@ const CreatePackage = () => {
       ...inputData
     };
     try {
-      const response = await fetch("http://localhost:8000/api/packages", {
+      const response = await fetch(`${BASE_URL}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload })
@@ -246,7 +246,7 @@ const CreatePackage = () => {
 
   const fetchProviders = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/providers", {
+      const response = await fetch(`${BASE_URL}/api/providers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PROVIDER_FETCH_ALL" })     
@@ -268,7 +268,7 @@ const CreatePackage = () => {
 
   const fetchPackage = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/packages", {
+      const response = await fetch(`${BASE_URL}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PACKAGE_FETCH", packageId })

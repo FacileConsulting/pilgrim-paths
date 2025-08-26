@@ -39,7 +39,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 // File imports
-import { ADD_NEW_PROVIDER } from "@/lib/constant";
+import { BASE_URL } from "@/lib/constant";
 
 const inquiries = [
   {

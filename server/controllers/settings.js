@@ -100,8 +100,8 @@ const getTodaysActivityHTML = (activity) => {
 }
 
 const createDatabaseBackup = async() => {
-  const uri = "mongodb://localhost:27017"; 
-  const dbName = "pilgrim_database";               
+  const uri = process.env.MONGODB_URI; 
+  const dbName = process.env.MONGODB_NAME;               
   const backupFile = `backup_${Date.now()}.gz`;
   exec(`mongodump --archive=${backupFile} --gzip`, async (err) => {
     if (err) return { stat: 500, obj: { error: message } }; 
@@ -206,7 +206,7 @@ exports.settings = async (req, res) => {
       }
     } if (type === settings.systemStatus) {
       let obj = {};
-      mongoose.connect(process.env.MONGODB_URI, {
+      mongoose.connect(`${process.env.MONGODB_URI}/${process.env.MONGODB_NAME}`, {
         useNewUrlParser: true,
         useUnifiedTopology: true
       });
@@ -258,8 +258,8 @@ exports.settings = async (req, res) => {
         return res.status(stat).send(obj);
       }
     } else if (type === settings.dbRestore) {
-      const uri = "mongodb://localhost:27017";
-      const dbName = "pilgrim_database";
+      const uri = process.env.MONGODB_URI; 
+      const dbName = process.env.MONGODB_NAME; 
       const restoreLatestBackup = async() => {
         const client = new MongoClient(uri);
         await client.connect();

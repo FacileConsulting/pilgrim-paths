@@ -16,7 +16,7 @@ import {
 
 import { toast } from "@/hooks/use-toast";
 
-import { DASHBOARD } from "@/lib/constant";
+import { DASHBOARD, BASE_URL } from "@/lib/constant";
 
 const stats = [
   {
@@ -135,7 +135,7 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/dashboard", {
+      const response = await fetch(`${BASE_URL}/api/dashboard`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "DASHBOARD_FETCH" })     
@@ -166,7 +166,7 @@ const Dashboard = () => {
 
   const fetchInquiries = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/inquiries", {
+      const response = await fetch(`${BASE_URL}/api/inquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "INQUIRY_FETCH_ALL" })     

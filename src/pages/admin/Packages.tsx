@@ -47,7 +47,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 // File imports
-import { CREATE_PACKAGE } from "@/lib/constant";
+import { CREATE_PACKAGE, BASE_URL } from "@/lib/constant";
 
 const packages = [
   {
@@ -141,7 +141,7 @@ const Packages = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/packages", {
+      const response = await fetch(`${BASE_URL}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PACKAGE_FETCH_ALL" })     
@@ -162,7 +162,7 @@ const Packages = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await fetch("http://localhost:8000/api/packages", {
+      const response = await fetch(`${BASE_URL}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PACKAGE_DELETE", packageId: id })     
@@ -189,7 +189,7 @@ const Packages = () => {
       ...pkg
     };
     try {
-      const response = await fetch("http://localhost:8000/api/packages", {
+      const response = await fetch(`${BASE_URL}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload })

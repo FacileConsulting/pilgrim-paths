@@ -6,6 +6,8 @@ import {
   IndianRupee,
 } from "lucide-react";
 
+export const BASE_URL = 'http://localhost:8000';
+
 export const ADD_NEW_PROVIDER = {
   placeholder: {
     name: "Ex:Al-Haramain Travel Agency",
@@ -122,3 +124,4 @@ export const DASHBOARD = {
     },
   ],
 }
+

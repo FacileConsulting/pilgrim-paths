@@ -36,6 +36,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// File imports
+import { BASE_URL } from "@/lib/constant";
+
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -123,7 +126,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
       inquiryNumber: format(new Date(), "yyMMddHHmmss")
     };
     try {
-      const response = await fetch("http://localhost:8000/api/inquiries", {
+      const response = await fetch(`${BASE_URL}/api/inquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload })

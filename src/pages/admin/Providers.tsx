@@ -38,7 +38,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 // File imports
-import { ADD_NEW_PROVIDER } from "@/lib/constant";
+import { ADD_NEW_PROVIDER, BASE_URL } from "@/lib/constant";
 
 const providers = [
   {
@@ -123,7 +123,7 @@ const Providers = () => {
 
   const fetchProviders = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/providers", {
+      const response = await fetch(`${BASE_URL}/api/providers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PROVIDER_FETCH_ALL" })     
@@ -144,7 +144,7 @@ const Providers = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await fetch("http://localhost:8000/api/providers", {
+      const response = await fetch(`${BASE_URL}/api/providers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PROVIDER_DELETE", providerId: id })     

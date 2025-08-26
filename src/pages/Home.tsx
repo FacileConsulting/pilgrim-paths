@@ -29,7 +29,7 @@ import { ContactModal } from "@/components/ContactModal";
 import { toast } from "@/hooks/use-toast";
 
 // File imports
-import { CREATE_PACKAGE } from "@/lib/constant";
+import { CREATE_PACKAGE, BASE_URL } from "@/lib/constant";
 
 const featuredPackages = [
   {
@@ -120,7 +120,7 @@ const Home = () => {
 
   const fetchProvider = async (providerId) => {
     try {
-      const response = await fetch("http://localhost:8000/api/providers", {
+      const response = await fetch(`${BASE_URL}/api/providers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PROVIDER_FETCH", providerId })
@@ -155,7 +155,7 @@ const Home = () => {
 
   const fetchPackages = async (isFeatured: Boolean = false) => {
     try {
-      const response = await fetch("http://localhost:8000/api/packages", {
+      const response = await fetch(`${BASE_URL}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "PACKAGE_FETCH_ALL" })     

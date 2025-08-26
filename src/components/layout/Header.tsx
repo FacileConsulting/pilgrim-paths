@@ -5,13 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 
+// File imports
+import { BASE_URL } from "@/lib/constant";
+
 export const Header = () => {
 
   const [counter, setCounter] = useState(0);
 
   const refreshNotification = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/settings", {
+      const response = await fetch(`${BASE_URL}/api/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "SETTINGS_FETCH" })
