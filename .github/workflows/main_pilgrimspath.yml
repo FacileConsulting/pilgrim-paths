@@ -51,5 +51,6 @@ jobs:
         with:
           app-name: 'PilgrimsPath'
           slot-name: 'Production'
-          package: .
+          package: './dist'
+
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0C1951C37265455CBD92DE9BEC9827AC }}
