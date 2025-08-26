@@ -115,7 +115,6 @@ exports.providers = async (req, res) => {
       const result = await updateProvider(providerId, {      
         ...req.body
       });
-      console.log('!!!!!!!!!!!@@!@!@ result', result);
       if (result.nModified) {               
         const dashboard = await getDashboard({ _id: '6899669c88070a0970315bcc' });
         const result = await updateDashboard('6899669c88070a0970315bcc', {      

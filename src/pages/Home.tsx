@@ -372,10 +372,17 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-              {filteredPackagesData.map((pkg) => (
+              {filteredPackagesData && filteredPackagesData.length > 0 && filteredPackagesData.map((pkg) => (
                 <PackageCard key={pkg._id} package={pkg} onContactClick={handleContactClick} />
               ))}
             </div>
+            
+              {
+                filteredPackagesData && filteredPackagesData.length === 0 && 
+                <div className="flex justify-center">
+                  <div className="font-bold text-foreground mb-4">No Packages Found</div>
+                </div>
+              }
           </div>
         )
       }
@@ -525,7 +532,7 @@ const PackageCard = ({ package: pkg, onContactClick }) => {
           </div>
           <div className="text-right">
             <div className="text-sm text-muted-foreground">from</div>
-            <div className="text-lg font-bold text-foreground">{pkg.packageCurrency === 'inr' ? '₹' : '$'}{pkg.packagePriceFrom}</div>
+            <div className="text-lg font-bold text-foreground">{pkg.packageCurrency === 'inr' ? '₹' : '$'}{Number(pkg.packagePriceFrom).toLocaleString('en-IN')}</div>
           </div>
         </div>
 

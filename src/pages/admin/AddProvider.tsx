@@ -96,13 +96,20 @@ const AddProvider = () => {
       providerEmail,
       providerPhone,
       providerLicense,
-      providerEstablished
+      providerEstablished,
+      providerRating
     } = inputData;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
     const licenseRegex = /^\d+$/;
     const establishedRegex = /^\d{4}$/;
+    const ratingRegex = /^(?:[1-4](?:\.[0-9])|5\.0)$/;
+
+    if (!providerRating || !ratingRegex.test(providerRating)) {
+      toast({ title: 'Please enter a valid rating' });
+      isValid = false;
+    }
 
     if (!providerEstablished || !establishedRegex.test(providerEstablished)) {
       toast({ title: 'Please enter a valid year' });

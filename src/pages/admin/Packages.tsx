@@ -332,7 +332,7 @@ const Packages = () => {
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
                         <IndianRupee className="h-3 w-3" />
-                        {pkg.packagePriceFrom.toLocaleString()} - {pkg.packagePriceTo.toLocaleString()}
+                        {Number(pkg.packagePriceFrom).toLocaleString('en-IN')} - {Number(pkg.packagePriceTo).toLocaleString('en-IN')}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -395,11 +395,11 @@ const Packages = () => {
                               </div>
                               <div>
                                 <label className="text-sm font-medium">Makkah Hotel</label>
-                                <p className="text-sm text-muted-foreground">{pkg.packageMakkahHotel}</p>
+                                <p className="text-sm text-muted-foreground">{pkg.packageMakkahHotel || "N/A"}</p>
                               </div>
                               <div>
                                 <label className="text-sm font-medium">Madinah Hotel</label>
-                                <p className="text-sm text-muted-foreground">{pkg.packageMadinahHotel}</p>
+                                <p className="text-sm text-muted-foreground">{pkg.packageMadinahHotel || "N/A"}</p>
                               </div>
                               <div>
                                 <label className="text-sm font-medium">Room Type</label>
@@ -410,7 +410,7 @@ const Packages = () => {
                                 <p className="text-sm text-muted-foreground">
                                   <div className="flex items-center gap-1 text-sm">
                                     <IndianRupee className="h-3 w-3" />
-                                    {pkg.packagePriceFrom.toLocaleString()} - {pkg.packagePriceTo.toLocaleString()}
+                                    {Number(pkg.packagePriceFrom).toLocaleString('en-IN')} - {Number(pkg.packagePriceTo).toLocaleString('en-IN')}
                                   </div>
                                 </p>
                               </div>
@@ -424,7 +424,7 @@ const Packages = () => {
                               </div>
                               <div>
                                 <label className="text-sm font-medium">Tags</label>
-                                <p className="text-sm text-muted-foreground">{pkg.packageTags}</p>
+                                <p className="text-sm text-muted-foreground">{pkg.packageTags || "N/A"}</p>
                               </div>
                               <div>
                                 <label className="text-sm font-medium">Package Category</label>
@@ -438,19 +438,19 @@ const Packages = () => {
                             
                             <div>
                               <label className="text-sm font-medium">Package Description</label>
-                              <p className="text-sm text-muted-foreground">{pkg.packageDescription}</p>
+                              <p className="text-sm text-muted-foreground">{pkg.packageDescription || "N/A"}</p>
                             </div>
                             <div>
                               <label className="text-sm font-medium">Departure Information</label>
-                              <p className="text-sm text-muted-foreground">{pkg.packageDepartureDescription}</p>
+                              <p className="text-sm text-muted-foreground">{pkg.packageDepartureDescription || "N/A"}</p>
                             </div>
                             <div>
                               <label className="text-sm font-medium">Inclusions</label>
-                              <p className="text-sm text-muted-foreground">{pkg.packageInclusions}</p>
+                              <p className="text-sm text-muted-foreground">{pkg.packageInclusions || "N/A"}</p>
                             </div>
                             <div>
                               <label className="text-sm font-medium">Exclusions</label>
-                              <p className="text-sm text-muted-foreground">{pkg.packageExclusions}</p>
+                              <p className="text-sm text-muted-foreground">{pkg.packageExclusions || "N/A"}</p>
                             </div>
                           </div>
                         </DialogContent>

@@ -269,7 +269,7 @@ const Providers = () => {
                           </div>
                           <div>
                             <label className="text-sm font-medium">Website</label>
-                            <p className="text-sm text-muted-foreground">{provider.providerWebsite}</p>
+                            <p className="text-sm text-muted-foreground">{provider.providerWebsite || "N/A"}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium">License Number</label>
@@ -298,15 +298,15 @@ const Providers = () => {
                         </div>
                         <div>
                           <label className="text-sm font-medium">Address</label>
-                          <p className="text-sm text-muted-foreground">{provider.providerAddress}</p>
+                          <p className="text-sm text-muted-foreground">{provider.providerAddress || "N/A"}</p>
                         </div>
                         <div>
                           <label className="text-sm font-medium">Description</label>
-                          <p className="text-sm text-muted-foreground">{provider.providerDescription}</p>
+                          <p className="text-sm text-muted-foreground">{provider.providerDescription || "N/A"}</p>
                         </div>
                         <div>
                           <label className="text-sm font-medium">Admin Notes</label>
-                          <p className="text-sm text-muted-foreground">{provider.providerAdminNotes}</p>
+                          <p className="text-sm text-muted-foreground">{provider.providerAdminNotes || "N/A"}</p>
                         </div>
                       </div>
                     </DialogContent>

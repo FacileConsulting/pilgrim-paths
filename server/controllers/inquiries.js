@@ -62,7 +62,6 @@ exports.inquiries = async (req, res) => {
       const result = await updateInquiry(inquiryId, {      
         ...req.body
       });
-      console.log('!!!!!!!!!!!@@!@!@ result', result);
       if (result.nModified) {
         const dashboard = await getDashboard({ _id: '6899669c88070a0970315bcc' });
         const result = await updateDashboard('6899669c88070a0970315bcc', {      
@@ -87,6 +86,18 @@ exports.inquiries = async (req, res) => {
         ...req.body
       });
       await saveInDB(inquiryData);
+      const dashboard = await getDashboard({ _id: '6899669c88070a0970315bcc' });
+      const result = await updateDashboard('6899669c88070a0970315bcc', {      
+        activity: [
+          {
+            time: new Date(),
+            type: 'inquiry',
+            name: req.body.inquiryProvider,
+            title: `Inquiry Created: ${req.body.inquiryPackage}`,
+            status: req.body.inquiryStatus || 'Pending'
+          }, 
+          ...dashboard.activity]
+      });
       res.status(c200).send({ ...inquiries.created });
     }
   } catch (error) {

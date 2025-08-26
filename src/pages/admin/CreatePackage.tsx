@@ -134,6 +134,11 @@ const CreatePackage = () => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    // check if file is an image
+    if (!file.type.startsWith("image/")) {
+      toast({ title: 'Please upload a valid image file (jpg, png, gif, svg, jpeg, etc.)' });
+      return;
+    }
     if (file) {
       const base64 = await toBase64(file);
       setInputData((prev) => ({ ...prev, packageImage: base64 }));
@@ -149,10 +154,19 @@ const CreatePackage = () => {
       packagePriceFrom,
       packagePriceTo,
       packageCapacity,
-      packageMinimumBooking
+      packageMinimumBooking,
+      packageStartDate,
+      packageEndDate,
+      packageRating
     } = inputData;
 
     const numberRegex = /^\d+$/;
+    const ratingRegex = /^(?:[1-4](?:\.[0-9])|5\.0)$/;
+
+    if (!packageRating || !ratingRegex.test(packageRating)) {
+      toast({ title: 'Please enter a valid rating' });
+      isValid = false;
+    }
 
     if (packageMinimumBooking && packageCapacity && Number(packageMinimumBooking) > Number(packageCapacity)) {
       toast({ title: 'Capacity should be greater than minimum booking' });
@@ -187,6 +201,21 @@ const CreatePackage = () => {
     if (!packageLocations) {
       toast({ title: 'Please enter locations' });
       isValid = false;
+    }
+
+    if (!packageEndDate) {
+      toast({ title: 'Please select end date' });
+      isValid = false;
+    }
+
+    if (!packageStartDate) {
+      toast({ title: 'Please select start date' });
+      isValid = false;
+    }
+
+    if (new Date(packageEndDate) <= new Date(packageStartDate)) {
+      toast({ title: 'End Date must be greater than Start Date' });
+      return false;
     }
 
     if (!packageDuration || !numberRegex.test(packageDuration)) {
@@ -323,8 +352,10 @@ const CreatePackage = () => {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Create New Package</h1>
-            <p className="text-muted-foreground">Create a new Hajj or Umrah travel package</p>
+            <h1 className="text-3xl font-bold text-foreground">{packageId ? "Edit Package" : "Create New Package"}</h1>
+            <p className="text-muted-foreground">
+              {packageId ? "Edit Hajj or Umrah travel package" : "Create a new Hajj or Umrah travel package"}
+            </p>
           </div>
         </div>
 
@@ -422,8 +453,6 @@ const CreatePackage = () => {
                       id="packageStartDate"
                       value={inputData.packageStartDate}
                       onInput={handleInput} />
-                    {/* <Input id="start-date" type="date" onChange={(e) => handleChange(e)}/> */}
-                    {/* <Input id="start-date" type="date" onChange={(e) => setInputData({ ...inputData, packageStartDate: e.target.value })}/> */}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="end-date">End Date</Label>

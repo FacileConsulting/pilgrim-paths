@@ -77,7 +77,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
     message: ''
   });
 
-  const validation = ({ name, email, phone, message }) => {
+  const validation = ({ name, email, phone, message, preferredDate}) => {
       let isValid = true;
   
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -85,6 +85,11 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
   
       if (!message) {
         toast({ title: 'Please enter message' });
+        isValid = false;
+      }
+      
+      if (!preferredDate) {
+        toast({ title: 'Please select date' });
         isValid = false;
       }
   
@@ -182,7 +187,7 @@ export const ContactModal = ({ isOpen, onClose, package: pkg, providerDetails })
                   <span className="text-sm text-muted-foreground">Price Range</span>
                   <div className="flex items-center gap-1">
                     <span className="text-sm font-medium">
-                      ₹{pkg.packagePriceFrom} - ₹{pkg.packagePriceTo}
+                      ₹{Number(pkg.packagePriceFrom).toLocaleString('en-IN')} - ₹{Number(pkg.packagePriceTo).toLocaleString('en-IN')}
                     </span>
                   </div>
                 </div>
