@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 //export const BASE_URL = 'http://localhost:8000';
-export const BASE_URL = 'https://pilgrimspath.azurewebsites.net';
+export const BASE_URL = 'https://pilgrimspathapi.azurewebsites.net';
 
 export const ADD_NEW_PROVIDER = {
   placeholder: {
