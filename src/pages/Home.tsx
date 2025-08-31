@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, 
   MapPin, 
@@ -30,6 +31,7 @@ import { toast } from "@/hooks/use-toast";
 
 // File imports
 import { CREATE_PACKAGE, BASE_URL } from "@/lib/constant";
+import { set } from "date-fns";
 
 const featuredPackages = [
   {
@@ -117,6 +119,8 @@ const Home = () => {
   const [packagesData, setPackagesData] = useState([]);
   const [featuredPackagesData, setFeaturedPackagesData] = useState([]);
   const [packageChange, setPackageChange] = useState("");
+  const [skeletonSearched, setSkeletonSearched] = useState(false);
+  const [skeletonFeatured, setSkeletonFeatured] = useState(false);
 
   const fetchProvider = async (providerId) => {
     try {
@@ -154,7 +158,10 @@ const Home = () => {
   }
 
   const fetchPackages = async (isFeatured: Boolean = false) => {
-    try {
+    try {  
+      !isFeatured && setDisplayPackages(true);   
+      isFeatured ? setSkeletonFeatured(true) : setSkeletonSearched(true);
+      debugger
       const response = await fetch(`${BASE_URL}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -164,7 +171,6 @@ const Home = () => {
       const data = await response.json();
 
       if (response.ok && data.status === "success" && data.data.length > 0) {
-        !isFeatured && setDisplayPackages(true);
         isFeatured ? setFeaturedPackagesData(data.data) : setPackagesData(data.data);
       } else {
         toast({ title: data.message || "Something went wrong!" });
@@ -172,6 +178,9 @@ const Home = () => {
     } catch (error) {
       console.error("Error package save data:", error);
       toast({ title: "Something went wrong!" });
+    } finally {
+      setSkeletonFeatured(false);
+      setSkeletonSearched(false);
     }
   }
 
@@ -236,6 +245,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
+      
       <header className="border-b border-border bg-primary/5 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
@@ -372,13 +382,17 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-              {filteredPackagesData && filteredPackagesData.length > 0 && filteredPackagesData.map((pkg) => (
+              {!skeletonSearched && filteredPackagesData && filteredPackagesData.length > 0 && filteredPackagesData.map((pkg) => (
                 <PackageCard key={pkg._id} package={pkg} onContactClick={handleContactClick} />
               ))}
-            </div>
-            
               {
-                filteredPackagesData && filteredPackagesData.length === 0 && 
+                skeletonSearched && Array.from({ length: 3 }).map((_, index) => (
+                  <PackageCardSkeleton key={`${index}_pack_search`} />
+                ))
+              }
+            </div>
+              {
+                !skeletonSearched && filteredPackagesData && filteredPackagesData.length === 0 && 
                 <div className="flex justify-center">
                   <div className="font-bold text-foreground mb-4">No Packages Found</div>
                 </div>
@@ -387,19 +401,23 @@ const Home = () => {
         )
       }
 
-      
-
       {/* Featured Packages */}
       <div className="container mx-auto px-4 py-16 bg-secondary/30">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-foreground mb-4">Featured Packages</h2>
+          
           <p className="text-muted-foreground">Hand-picked packages from our trusted partners</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {featuredPackagesData.map((pkg) => (
+          {!skeletonFeatured && featuredPackagesData && featuredPackagesData.length > 0 && featuredPackagesData.map((pkg) => (
             pkg.packageFeatured && <PackageCard key={pkg._id} package={pkg} onContactClick={handleContactClick} />
           ))}
+          {
+            skeletonFeatured && Array.from({ length: 3 }).map((_, index) => (
+              <PackageCardSkeleton key={`${index}_pack`} />
+            ))
+          }
         </div>
       </div>
 
@@ -584,6 +602,42 @@ const PackageCard = ({ package: pkg, onContactClick }) => {
     </Card>
   );
 };
+
+const PackageCardSkeleton = () => {
+  return (
+    <Card>
+
+      <div className="space-y-2">
+        <Skeleton className="h-48 w-100 rounded-md bg-primary/20" />
+      </div>
+      
+      <CardContent className="p-6">
+
+        <div className="space-y-2 mb-4">
+          <Skeleton className="h-10 w-[22rem] rounded-md bg-primary/20" />
+        </div>
+
+        <div className="space-y-2 mb-4">
+          <Skeleton className="h-5 w-[22rem] rounded-md bg-primary/20" />
+        </div>
+
+        <div className="space-y-2 mb-4">
+          <Skeleton className="h-5 w-[22rem] rounded-md bg-primary/20" />
+        </div>
+
+        <div className="space-y-2 mb-4">
+          <Skeleton className="h-20 w-100 rounded-md bg-primary/20" />
+        </div>
+
+        <div className="space-y-2 mb-4">
+          <Skeleton className="h-10 w-[22rem] rounded-md bg-primary/20" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+
 
 const SearchResults = ({ query, location, onContactClick }) => {
   const filteredPackages = featuredPackages.filter(pkg => 
